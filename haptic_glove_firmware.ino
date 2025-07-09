@@ -5,7 +5,7 @@
 #include <Servo.h>
 
 // BNO055 IMU
-Adafruit_BNO055 bno = Adafruit_BNO055(55);
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x29);
 
 // Servo objects for force feedback
 Servo thumbServo;
@@ -46,7 +46,7 @@ GloveData gloveData;
 ForceData forceData;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   
   // Initialize BNO055
   if (!bno.begin()) {
