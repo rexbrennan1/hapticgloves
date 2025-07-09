@@ -1,0 +1,27 @@
+{
+  "name": "haptic_glove",
+  "directory": "",
+  "resourceOnly": false,
+  "hmd_presence": [""],
+  "file_type": "driver",
+  "version": "1.0.0",
+  "driver_name": "haptic_glove_driver",
+  "author": "Your Name",
+  "description": "VR Haptic Glove Driver with BNO055 and Force Feedback",
+  "supported_os": ["windows"],
+  "driver_class": "ControllerDriver",
+  "capabilities": {
+    "provides_controller": true,
+    "provides_hmd": false,
+    "provides_tracked_device": true
+  },
+  "binaries": {
+    "win64": "bin/win64/driver_haptic_glove.dll"
+  },
+  "settings": {
+    "controller_type": "vr_controller_vive_1_5",
+    "manufacturer": "Custom",
+    "model_number": "HapticGlove_v1",
+    "render_model": "vr_controller_vive_1_5"
+  }
+}
