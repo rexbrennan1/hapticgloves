@@ -27,44 +27,37 @@ const int MIDDLE_SERVO = 6;
 const int RING_SERVO = 9;
 const int PINKY_SERVO = 10;
 
-// Data structure for sending data to PC
+// Data structure for sending data
 struct GloveData {
   float quat_w, quat_x, quat_y, quat_z;  // Quaternion from BNO055
   float accel_x, accel_y, accel_z;       // Accelerometer data
-  float gyro_x, gyro_y, gyro_z;          // Gyroscope data
-  uint16_t finger_curl[5];               // Finger curl values (0-1023)
-  uint8_t checksum;
-};
+  int thumb_curl, index_curl, middle_curl, ring_curl, pinky_curl;  // Finger positions (0-1023)
+  bool calibrated;
+} gloveData;
 
-// Data structure for receiving force feedback commands
-struct ForceData {
-  uint8_t forces[5];  // Force values for each finger (0-255)
-  uint8_t checksum;
-};
-
-GloveData gloveData;
-ForceData forceData;
+// Force feedback values (0-180 degrees)
+int servoPositions[5] = {90, 90, 90, 90, 90};  // Default to middle position
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   
   // Initialize BNO055
   if (!bno.begin()) {
-    Serial.println("BNO055 not detected");
+    Serial.println("ERROR: BNO055 not detected");
     while (1);
   }
   
-  // Use external crystal for better accuracy
-  bno.setExtCrystalUse(true);
+  // Set BNO055 to NDOF mode for full sensor fusion
+  bno.setMode(OPERATION_MODE_NDOF);
   
-  // Initialize servos
+  // Attach servos
   thumbServo.attach(THUMB_SERVO);
   indexServo.attach(INDEX_SERVO);
   middleServo.attach(MIDDLE_SERVO);
   ringServo.attach(RING_SERVO);
   pinkyServo.attach(PINKY_SERVO);
   
-  // Set servos to neutral position
+  // Initialize servos to neutral position
   thumbServo.write(90);
   indexServo.write(90);
   middleServo.write(90);
@@ -72,6 +65,7 @@ void setup() {
   pinkyServo.write(90);
   
   delay(1000);
+  Serial.println("GLOVE_READY");
 }
 
 void loop() {
@@ -79,7 +73,7 @@ void loop() {
   sensors_event_t event;
   bno.getEvent(&event);
   
-  // Get quaternion
+  // Get quaternion data
   imu::Quaternion quat = bno.getQuat();
   gloveData.quat_w = quat.w();
   gloveData.quat_x = quat.x();
@@ -87,65 +81,70 @@ void loop() {
   gloveData.quat_z = quat.z();
   
   // Get accelerometer data
-  imu::Vector<3> accel = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-  gloveData.accel_x = accel.x();
-  gloveData.accel_y = accel.y();
-  gloveData.accel_z = accel.z();
-  
-  // Get gyroscope data
-  imu::Vector<3> gyro = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-  gloveData.gyro_x = gyro.x();
-  gloveData.gyro_y = gyro.y();
-  gloveData.gyro_z = gyro.z();
+  sensors_event_t accelEvent;
+  bno.getEvent(&accelEvent, Adafruit_BNO055::VECTOR_ACCELEROMETER);
+  gloveData.accel_x = accelEvent.acceleration.x;
+  gloveData.accel_y = accelEvent.acceleration.y;
+  gloveData.accel_z = accelEvent.acceleration.z;
   
   // Read finger curl potentiometers
-  gloveData.finger_curl[0] = analogRead(THUMB_POT);
-  gloveData.finger_curl[1] = analogRead(INDEX_POT);
-  gloveData.finger_curl[2] = analogRead(MIDDLE_POT);
-  gloveData.finger_curl[3] = analogRead(RING_POT);
-  gloveData.finger_curl[4] = analogRead(PINKY_POT);
+  gloveData.thumb_curl = analogRead(THUMB_POT);
+  gloveData.index_curl = analogRead(INDEX_POT);
+  gloveData.middle_curl = analogRead(MIDDLE_POT);
+  gloveData.ring_curl = analogRead(RING_POT);
+  gloveData.pinky_curl = analogRead(PINKY_POT);
   
-  // Calculate checksum
-  gloveData.checksum = calculateChecksum((uint8_t*)&gloveData, sizeof(gloveData) - 1);
+  // Check calibration status
+  uint8_t sys, gyro, accel, mag;
+  bno.getCalibration(&sys, &gyro, &accel, &mag);
+  gloveData.calibrated = (sys >= 2 && gyro >= 2 && accel >= 2 && mag >= 2);
   
-  // Send data to PC
-  Serial.write((uint8_t*)&gloveData, sizeof(gloveData));
+  // Send data packet
+  Serial.print("DATA:");
+  Serial.print(gloveData.quat_w, 4); Serial.print(",");
+  Serial.print(gloveData.quat_x, 4); Serial.print(",");
+  Serial.print(gloveData.quat_y, 4); Serial.print(",");
+  Serial.print(gloveData.quat_z, 4); Serial.print(",");
+  Serial.print(gloveData.accel_x, 2); Serial.print(",");
+  Serial.print(gloveData.accel_y, 2); Serial.print(",");
+  Serial.print(gloveData.accel_z, 2); Serial.print(",");
+  Serial.print(gloveData.thumb_curl); Serial.print(",");
+  Serial.print(gloveData.index_curl); Serial.print(",");
+  Serial.print(gloveData.middle_curl); Serial.print(",");
+  Serial.print(gloveData.ring_curl); Serial.print(",");
+  Serial.print(gloveData.pinky_curl); Serial.print(",");
+  Serial.print(gloveData.calibrated ? "1" : "0");
+  Serial.println();
   
-  // Check for incoming force feedback data
-  if (Serial.available() >= sizeof(ForceData)) {
-    Serial.readBytes((uint8_t*)&forceData, sizeof(ForceData));
+  // Check for incoming haptic feedback commands
+  if (Serial.available()) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
     
-    // Verify checksum
-    uint8_t calculatedChecksum = calculateChecksum((uint8_t*)&forceData, sizeof(ForceData) - 1);
-    if (calculatedChecksum == forceData.checksum) {
-      // Apply force feedback
-      applyForces();
+    if (command.startsWith("HAPTIC:")) {
+      // Parse haptic command: HAPTIC:thumb,index,middle,ring,pinky
+      command = command.substring(7);  // Remove "HAPTIC:"
+      
+      int values[5];
+      int valueIndex = 0;
+      int startIndex = 0;
+      
+      for (int i = 0; i <= command.length() && valueIndex < 5; i++) {
+        if (i == command.length() || command[i] == ',') {
+          values[valueIndex] = command.substring(startIndex, i).toInt();
+          startIndex = i + 1;
+          valueIndex++;
+        }
+      }
+      
+      // Apply servo positions (constrain to 0-180 range)
+      thumbServo.write(constrain(values[0], 0, 180));
+      indexServo.write(constrain(values[1], 0, 180));
+      middleServo.write(constrain(values[2], 0, 180));
+      ringServo.write(constrain(values[3], 0, 180));
+      pinkyServo.write(constrain(values[4], 0, 180));
     }
   }
   
-  delay(10); // ~100Hz update rate
-}
-
-uint8_t calculateChecksum(uint8_t* data, int length) {
-  uint8_t sum = 0;
-  for (int i = 0; i < length; i++) {
-    sum += data[i];
-  }
-  return sum;
-}
-
-void applyForces() {
-  // Map force values (0-255) to servo positions
-  // Adjust these mappings based on your servo setup
-  int thumbPos = map(forceData.forces[0], 0, 255, 70, 110);
-  int indexPos = map(forceData.forces[1], 0, 255, 70, 110);
-  int middlePos = map(forceData.forces[2], 0, 255, 70, 110);
-  int ringPos = map(forceData.forces[3], 0, 255, 70, 110);
-  int pinkyPos = map(forceData.forces[4], 0, 255, 70, 110);
-  
-  thumbServo.write(thumbPos);
-  indexServo.write(indexPos);
-  middleServo.write(middlePos);
-  ringServo.write(ringPos);
-  pinkyServo.write(pinkyPos);
+  delay(20);  // 50Hz update rate
 }

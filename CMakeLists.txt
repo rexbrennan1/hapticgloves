@@ -1,8 +1,15 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 project(HapticGloveDriver)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Visual Studio 2022 specific settings
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    add_compile_options(/W3)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
 
 # Find OpenVR
 find_path(OPENVR_INCLUDE_DIR
@@ -69,8 +76,15 @@ target_link_libraries(driver_haptic_glove ${OPENVR_LIBRARY})
 
 # Platform-specific settings
 if(WIN32)
-    target_compile_definitions(driver_haptic_glove PRIVATE _WIN32_WINNT=0x0601)
+    target_compile_definitions(driver_haptic_glove PRIVATE _WIN32_WINNT=0x0A00)  # Windows 10
     target_compile_definitions(driver_haptic_glove PRIVATE NOMINMAX)
+    target_compile_definitions(driver_haptic_glove PRIVATE WIN32_LEAN_AND_MEAN)
+    
+    # Visual Studio 2022 specific settings
+    if(MSVC)
+        target_compile_options(driver_haptic_glove PRIVATE /permissive-)
+        target_compile_options(driver_haptic_glove PRIVATE /Zc:__cplusplus)
+    endif()
     
     # Windows-specific libraries
     target_link_libraries(driver_haptic_glove ws2_32)
@@ -79,6 +93,10 @@ if(WIN32)
     set_target_properties(driver_haptic_glove PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/win64
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/win64
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin/win64
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin/win64
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin/win64
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin/win64
     )
 elseif(UNIX)
     # Linux-specific libraries

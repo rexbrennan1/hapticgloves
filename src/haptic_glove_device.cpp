@@ -155,7 +155,7 @@ bool HapticGloveDevice::InitializeSerial()
             
             if (GetCommState(m_hSerial, &dcbSerialParams))
             {
-                dcbSerialParams.BaudRate = CBR_115200;
+                dcbSerialParams.BaudRate = CBR_9600;
                 dcbSerialParams.ByteSize = 8;
                 dcbSerialParams.StopBits = ONESTOPBIT;
                 dcbSerialParams.Parity = NOPARITY;
