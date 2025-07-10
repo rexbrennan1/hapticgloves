@@ -3,6 +3,22 @@ project(haptic_glove_driver)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Set compiler flags for Visual Studio 2022
+if(MSVC)
+    # Disable specific warnings that cause issues in VS2022
+    add_compile_options(
+        /W3                     # Warning level 3
+        /wd4996                 # Disable deprecated function warnings
+        /wd4244                 # Disable conversion warnings
+        /wd4267                 # Disable size_t conversion warnings
+        /DNOMINMAX              # Prevent Windows.h from defining min/max macros
+        /D_CRT_SECURE_NO_WARNINGS
+    )
+    
+    # Enable UTF-8 source and execution character sets
+    add_compile_options(/utf-8)
+endif()
+
 # Find OpenVR
 find_path(OPENVR_INCLUDE_DIRS
     NAMES

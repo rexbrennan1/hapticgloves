@@ -1,0 +1,7 @@
+{
+  "alwaysActivate": true,
+  "name": "haptic_glove",
+  "directory": "",
+  "resourceOnly": false,
+  "hmd_presence": ["./resources/input/haptic_glove_profile.json"]
+}

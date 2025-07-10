@@ -1,0 +1,11 @@
+
+{
+  "driver_haptic_glove": {
+    "serial_port": "COM3",
+    "serial_baudrate": 9600,
+    "enable_haptic_feedback": true,
+    "finger_curl_min": 0,
+    "finger_curl_max": 1023,
+    "haptic_strength": 1.0
+  }
+}

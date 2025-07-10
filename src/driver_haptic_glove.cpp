@@ -1,6 +1,6 @@
 //============ Copyright (c) Valve Corporation, All rights reserved. ============
 //
-// OpenVR Haptic Glove Driver
+// OpenVR Haptic Glove Driver - Fixed for Visual Studio 2022
 //
 //=============================================================================
 
@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <cstring>
 
 using namespace vr;
 
@@ -24,10 +25,7 @@ using namespace vr;
 #error "Unsupported Platform."
 #endif
 
-// Serial communication
-#include <windows.h>
-#include <stdio.h>
-
+// Serial communication class
 class SerialPort {
 public:
     SerialPort(const std::string& portName, int baudRate) 
@@ -65,7 +63,7 @@ public:
             return false;
         }
         
-        dcbSerialParams.BaudRate = baudRate_;
+        dcbSerialParams.BaudRate = static_cast<DWORD>(baudRate_);
         dcbSerialParams.ByteSize = 8;
         dcbSerialParams.StopBits = ONESTOPBIT;
         dcbSerialParams.Parity = NOPARITY;
@@ -112,7 +110,7 @@ public:
     bool WriteLine(const std::string& data) {
         std::string dataWithNewline = data + "\n";
         DWORD bytesWritten;
-        return WriteFile(hSerial_, dataWithNewline.c_str(), dataWithNewline.length(), &bytesWritten, NULL);
+        return WriteFile(hSerial_, dataWithNewline.c_str(), static_cast<DWORD>(dataWithNewline.length()), &bytesWritten, NULL);
     }
     
     bool IsOpen() const {
@@ -131,6 +129,11 @@ struct GloveData {
     float accel_x, accel_y, accel_z;
     int thumb_curl, index_curl, middle_curl, ring_curl, pinky_curl;
     bool calibrated;
+    
+    GloveData() : quat_w(1.0f), quat_x(0.0f), quat_y(0.0f), quat_z(0.0f),
+                  accel_x(0.0f), accel_y(0.0f), accel_z(0.0f),
+                  thumb_curl(512), index_curl(512), middle_curl(512), 
+                  ring_curl(512), pinky_curl(512), calibrated(false) {}
 };
 
 // Haptic Glove Device Class
@@ -141,46 +144,40 @@ public:
         , serialPort_(nullptr)
         , isActive_(false)
         , lastUpdateTime_(0)
+        , systemClickComponent_(vr::k_ulInvalidInputComponentHandle)
+        , gripClickComponent_(vr::k_ulInvalidInputComponentHandle)
+        , triggerClickComponent_(vr::k_ulInvalidInputComponentHandle)
+        , thumbCurlComponent_(vr::k_ulInvalidInputComponentHandle)
+        , indexCurlComponent_(vr::k_ulInvalidInputComponentHandle)
+        , middleCurlComponent_(vr::k_ulInvalidInputComponentHandle)
+        , ringCurlComponent_(vr::k_ulInvalidInputComponentHandle)
+        , pinkyCurlComponent_(vr::k_ulInvalidInputComponentHandle)
+        , hapticComponent_(vr::k_ulInvalidInputComponentHandle)
     {
         // Initialize pose
-        pose_.qWorldFromDriverRotation = HmdQuaternion_Init(1, 0, 0, 0);
-        pose_.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
-        pose_.vecWorldFromDriverTranslation[0] = 0;
-        pose_.vecWorldFromDriverTranslation[1] = 0;
-        pose_.vecWorldFromDriverTranslation[2] = 0;
-        pose_.vecDriverFromHeadTranslation[0] = 0;
-        pose_.vecDriverFromHeadTranslation[1] = 0;
-        pose_.vecDriverFromHeadTranslation[2] = 0;
+        memset(&pose_, 0, sizeof(pose_));
         
-        pose_.qRotation = HmdQuaternion_Init(1, 0, 0, 0);
-        pose_.vecPosition[0] = 0;
-        pose_.vecPosition[1] = 0;
-        pose_.vecPosition[2] = 0;
+        pose_.qWorldFromDriverRotation.w = 1.0;
+        pose_.qWorldFromDriverRotation.x = 0.0;
+        pose_.qWorldFromDriverRotation.y = 0.0;
+        pose_.qWorldFromDriverRotation.z = 0.0;
         
-        pose_.vecVelocity[0] = 0;
-        pose_.vecVelocity[1] = 0;
-        pose_.vecVelocity[2] = 0;
+        pose_.qDriverFromHeadRotation.w = 1.0;
+        pose_.qDriverFromHeadRotation.x = 0.0;
+        pose_.qDriverFromHeadRotation.y = 0.0;
+        pose_.qDriverFromHeadRotation.z = 0.0;
         
-        pose_.vecAngularVelocity[0] = 0;
-        pose_.vecAngularVelocity[1] = 0;
-        pose_.vecAngularVelocity[2] = 0;
-        
-        pose_.vecAcceleration[0] = 0;
-        pose_.vecAcceleration[1] = 0;
-        pose_.vecAcceleration[2] = 0;
-        
-        pose_.vecAngularAcceleration[0] = 0;
-        pose_.vecAngularAcceleration[1] = 0;
-        pose_.vecAngularAcceleration[2] = 0;
+        pose_.qRotation.w = 1.0;
+        pose_.qRotation.x = 0.0;
+        pose_.qRotation.y = 0.0;
+        pose_.qRotation.z = 0.0;
         
         pose_.result = TrackingResult_Running_OK;
         pose_.poseIsValid = true;
         pose_.willDriftInYaw = false;
         pose_.shouldApplyHeadModel = false;
         pose_.deviceIsConnected = true;
-        
-        // Initialize glove data
-        gloveData_ = {1, 0, 0, 0, 0, 0, 0, 512, 512, 512, 512, 512, false};
+        pose_.poseTimeOffset = 0.0;
     }
     
     virtual ~HapticGloveDevice() {
@@ -192,9 +189,12 @@ public:
     virtual EVRInitError Activate(vr::TrackedDeviceIndex_t unObjectId) override {
         objectId_ = unObjectId;
         
-        // Get settings
-        std::string portName = vr::VRSettings()->GetString("driver_haptic_glove", "serial_port", "COM3");
-        int baudRate = vr::VRSettings()->GetInt32("driver_haptic_glove", "serial_baudrate", 9600);
+        // Get settings with proper string handling
+        char portNameBuffer[256];
+        vr::EVRSettingsError settingsError;
+        vr::VRSettings()->GetString("driver_haptic_glove", "serial_port", portNameBuffer, sizeof(portNameBuffer), "COM3");
+        std::string portName = std::string(portNameBuffer);
+        int baudRate = 9600; //vr::VRSettings()->GetInt32("driver_haptic_glove", "serial_baudrate", 9600);
         
         // Open serial port
         serialPort_ = new SerialPort(portName, baudRate);
@@ -250,7 +250,7 @@ public:
         return nullptr;
     }
     
-    virtual void PowerOff() override {}
+     // virtual void PowerOff() override {}
     
     virtual void DebugRequest(const char *pchRequest, char *pchResponseBuffer, uint32_t unResponseBufferSize) override {
         if (unResponseBufferSize >= 1) {
@@ -288,19 +288,24 @@ public:
         }
         
         if (tokens.size() >= 13) {
-            gloveData_.quat_w = std::stof(tokens[0]);
-            gloveData_.quat_x = std::stof(tokens[1]);
-            gloveData_.quat_y = std::stof(tokens[2]);
-            gloveData_.quat_z = std::stof(tokens[3]);
-            gloveData_.accel_x = std::stof(tokens[4]);
-            gloveData_.accel_y = std::stof(tokens[5]);
-            gloveData_.accel_z = std::stof(tokens[6]);
-            gloveData_.thumb_curl = std::stoi(tokens[7]);
-            gloveData_.index_curl = std::stoi(tokens[8]);
-            gloveData_.middle_curl = std::stoi(tokens[9]);
-            gloveData_.ring_curl = std::stoi(tokens[10]);
-            gloveData_.pinky_curl = std::stoi(tokens[11]);
-            gloveData_.calibrated = (tokens[12] == "1");
+            try {
+                gloveData_.quat_w = std::stof(tokens[0]);
+                gloveData_.quat_x = std::stof(tokens[1]);
+                gloveData_.quat_y = std::stof(tokens[2]);
+                gloveData_.quat_z = std::stof(tokens[3]);
+                gloveData_.accel_x = std::stof(tokens[4]);
+                gloveData_.accel_y = std::stof(tokens[5]);
+                gloveData_.accel_z = std::stof(tokens[6]);
+                gloveData_.thumb_curl = std::stoi(tokens[7]);
+                gloveData_.index_curl = std::stoi(tokens[8]);
+                gloveData_.middle_curl = std::stoi(tokens[9]);
+                gloveData_.ring_curl = std::stoi(tokens[10]);
+                gloveData_.pinky_curl = std::stoi(tokens[11]);
+                gloveData_.calibrated = (tokens[12] == "1");
+            } catch (...) {
+                // Handle parsing errors gracefully
+                vr::VRDriverLog()->Log("Error parsing glove data");
+            }
         }
     }
     
@@ -318,7 +323,7 @@ public:
             pose_.result = TrackingResult_Running_OutOfRange;
         }
         
-        pose_.poseTimeOffset = 0;
+        pose_.poseTimeOffset = 0.0;
         
         // Send pose update
         if (objectId_ != vr::k_unTrackedDeviceIndexInvalid) {
@@ -330,33 +335,33 @@ public:
         if (objectId_ == vr::k_unTrackedDeviceIndexInvalid) return;
         
         // Normalize finger curl values (0-1023 to 0.0-1.0)
-        float thumbCurl = (float)gloveData_.thumb_curl / 1023.0f;
-        float indexCurl = (float)gloveData_.index_curl / 1023.0f;
-        float middleCurl = (float)gloveData_.middle_curl / 1023.0f;
-        float ringCurl = (float)gloveData_.ring_curl / 1023.0f;
-        float pinkyCurl = (float)gloveData_.pinky_curl / 1023.0f;
+        float thumbCurl = static_cast<float>(gloveData_.thumb_curl) / 1023.0f;
+        float indexCurl = static_cast<float>(gloveData_.index_curl) / 1023.0f;
+        float middleCurl = static_cast<float>(gloveData_.middle_curl) / 1023.0f;
+        float ringCurl = static_cast<float>(gloveData_.ring_curl) / 1023.0f;
+        float pinkyCurl = static_cast<float>(gloveData_.pinky_curl) / 1023.0f;
         
         // Update finger curl components
-        vr::VRDriverInput()->UpdateScalarComponent(thumbCurlComponent_, thumbCurl, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(indexCurlComponent_, indexCurl, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(middleCurlComponent_, middleCurl, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(ringCurlComponent_, ringCurl, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(pinkyCurlComponent_, pinkyCurl, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(thumbCurlComponent_, thumbCurl, 0.0);
+        vr::VRDriverInput()->UpdateScalarComponent(indexCurlComponent_, indexCurl, 0.0);
+        vr::VRDriverInput()->UpdateScalarComponent(middleCurlComponent_, middleCurl, 0.0);
+        vr::VRDriverInput()->UpdateScalarComponent(ringCurlComponent_, ringCurl, 0.0);
+        vr::VRDriverInput()->UpdateScalarComponent(pinkyCurlComponent_, pinkyCurl, 0.0);
         
         // Simple gesture recognition
         bool gripClick = (thumbCurl > 0.7f && indexCurl > 0.7f && middleCurl > 0.7f);
         bool triggerClick = (indexCurl > 0.8f);
         bool systemClick = (thumbCurl > 0.8f && middleCurl > 0.8f && ringCurl > 0.8f && pinkyCurl > 0.8f);
         
-        vr::VRDriverInput()->UpdateBooleanComponent(gripClickComponent_, gripClick, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(triggerClickComponent_, triggerClick, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(systemClickComponent_, systemClick, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(gripClickComponent_, gripClick, 0.0);
+        vr::VRDriverInput()->UpdateBooleanComponent(triggerClickComponent_, triggerClick, 0.0);
+        vr::VRDriverInput()->UpdateBooleanComponent(systemClickComponent_, systemClick, 0.0);
     }
     
-    void SendHapticFeedback(float strength, float duration) {
+    void SendHapticFeedback(float strength, float /*duration*/) {
         if (serialPort_ && serialPort_->IsOpen()) {
             // Convert strength to servo positions (90 = neutral, higher = more force)
-            int servoValue = 90 + (int)(strength * 90);
+            int servoValue = 90 + static_cast<int>(strength * 90);
             
             std::string command = "HAPTIC:" + 
                 std::to_string(servoValue) + "," +
@@ -394,6 +399,8 @@ private:
 // Driver Provider Class
 class HapticGloveDriverProvider : public vr::IServerTrackedDeviceProvider {
 public:
+    HapticGloveDriverProvider() : gloveDevice_(nullptr) {}
+    
     virtual EVRInitError Init(vr::IVRDriverContext *pDriverContext) override {
         VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
         
@@ -404,8 +411,10 @@ public:
     }
     
     virtual void Cleanup() override {
-        delete gloveDevice_;
-        gloveDevice_ = nullptr;
+        if (gloveDevice_) {
+            delete gloveDevice_;
+            gloveDevice_ = nullptr;
+        }
     }
     
     virtual const char * const *GetInterfaceVersions() override {
