@@ -2,12 +2,5 @@
     "alwaysActivate": true,
     "name": "haptic_glove_driver",
     "directory": "",
-    "resourceOnly": false,
-    "hmd_presence": [],
-    "input_bindings": [
-        {
-            "controller_type": "haptic_glove",
-            "legacy_binding": "./resources/input/haptic_glove_profile.json"
-        }
-    ]
+    "resourceOnly": false
 }

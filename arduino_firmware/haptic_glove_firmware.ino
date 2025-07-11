@@ -1,150 +1,163 @@
+/*
+ * VR Haptic Glove Firmware
+ * Right hand only, 9600 baud, simple and reliable
+ */
+
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 #include <Servo.h>
 
-// BNO055 IMU
-Adafruit_BNO055 bno = Adafruit_BNO055(55,0x29);
+// Hardware setup
+Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x29);  // I2C address 0x29
 
-// Servo objects for force feedback
-Servo thumbServo;
-Servo indexServo;
-Servo middleServo;
-Servo ringServo;
-Servo pinkyServo;
+// Servo objects for haptic feedback
+Servo servos[5];
 
-// Pin definitions
-const int THUMB_POT = A0;
-const int INDEX_POT = A1;
-const int MIDDLE_POT = A2;
-const int RING_POT = A3;
-const int PINKY_POT = A4;
+// Pin assignments
+const int FINGER_PINS[5] = {A0, A1, A2, A3, A4};  // Thumb, Index, Middle, Ring, Pinky
+const int SERVO_PINS[5] = {3, 5, 6, 9, 10};       // PWM pins for servos
 
-const int THUMB_SERVO = 3;
-const int INDEX_SERVO = 5;
-const int MIDDLE_SERVO = 6;
-const int RING_SERVO = 9;
-const int PINKY_SERVO = 10;
-
-// Data structure for sending data
+// Data structure
 struct GloveData {
-  float quat_w, quat_x, quat_y, quat_z;  // Quaternion from BNO055
-  float accel_x, accel_y, accel_z;       // Accelerometer data
-  int thumb_curl, index_curl, middle_curl, ring_curl, pinky_curl;  // Finger positions (0-1023)
-  bool calibrated;
-} gloveData;
+  float qw, qx, qy, qz;           // Quaternion rotation
+  float ax, ay, az;               // Accelerometer 
+  int fingers[5];                 // Finger curl values (0-1023)
+  bool calibrated;                // IMU calibration status
+};
 
-// Force feedback values (0-180 degrees)
-int servoPositions[5] = {90, 90, 90, 90, 90};  // Default to middle position
+GloveData data;
 
 void setup() {
   Serial.begin(9600);
+  Serial.println("Starting VR Haptic Glove...");
   
-  // Initialize BNO055
+  // Initialize IMU
   if (!bno.begin()) {
-    Serial.println("ERROR: BNO055 not detected");
-    while (1);
+    Serial.println("ERROR: BNO055 not found!");
+    while(1) delay(1000);  // Stop here if no IMU
   }
   
-  // Set BNO055 to NDOF mode for full sensor fusion
   bno.setMode(OPERATION_MODE_NDOF);
+  Serial.println("BNO055 initialized");
   
-  // Attach servos
-  thumbServo.attach(THUMB_SERVO);
-  indexServo.attach(INDEX_SERVO);
-  middleServo.attach(MIDDLE_SERVO);
-  ringServo.attach(RING_SERVO);
-  pinkyServo.attach(PINKY_SERVO);
-  
-  // Initialize servos to neutral position
-  thumbServo.write(90);
-  indexServo.write(90);
-  middleServo.write(90);
-  ringServo.write(90);
-  pinkyServo.write(90);
+  // Initialize servos
+  for(int i = 0; i < 5; i++) {
+    servos[i].attach(SERVO_PINS[i]);
+    servos[i].write(90);  // Neutral position
+  }
+  Serial.println("Servos initialized");
   
   delay(1000);
   Serial.println("GLOVE_READY");
 }
 
 void loop() {
-  // Read IMU data
+  readSensors();
+  sendData();
+  handleCommands();
+  delay(20);  // 50Hz update rate
+}
+
+void readSensors() {
+  // Read IMU quaternion
+  imu::Quaternion q = bno.getQuat();
+  data.qw = q.w();
+  data.qx = q.x(); 
+  data.qy = q.y();
+  data.qz = q.z();
+  
+  // Handle NaN values during calibration
+  if(isnan(data.qw)) {
+    data.qw = 1.0;
+    data.qx = data.qy = data.qz = 0.0;
+  }
+  
+  // Read accelerometer
   sensors_event_t event;
-  bno.getEvent(&event);
+  bno.getEvent(&event, Adafruit_BNO055::VECTOR_ACCELEROMETER);
+  data.ax = event.acceleration.x;
+  data.ay = event.acceleration.y; 
+  data.az = event.acceleration.z;
   
-  // Get quaternion data
-  imu::Quaternion quat = bno.getQuat();
-  gloveData.quat_w = quat.w();
-  gloveData.quat_x = quat.x();
-  gloveData.quat_y = quat.y();
-  gloveData.quat_z = quat.z();
-  
-  // Get accelerometer data
-  sensors_event_t accelEvent;
-  bno.getEvent(&accelEvent, Adafruit_BNO055::VECTOR_ACCELEROMETER);
-  gloveData.accel_x = accelEvent.acceleration.x;
-  gloveData.accel_y = accelEvent.acceleration.y;
-  gloveData.accel_z = accelEvent.acceleration.z;
-  
-  // Read finger curl potentiometers
-  gloveData.thumb_curl = analogRead(THUMB_POT);
-  gloveData.index_curl = analogRead(INDEX_POT);
-  gloveData.middle_curl = analogRead(MIDDLE_POT);
-  gloveData.ring_curl = analogRead(RING_POT);
-  gloveData.pinky_curl = analogRead(PINKY_POT);
+  // Read finger positions with simple smoothing
+  static int lastFingers[5] = {512, 512, 512, 512, 512};
+  for(int i = 0; i < 5; i++) {
+    int raw = analogRead(FINGER_PINS[i]);
+    data.fingers[i] = (lastFingers[i] * 3 + raw) / 4;  // Simple filter
+    lastFingers[i] = data.fingers[i];
+  }
   
   // Check calibration status
   uint8_t sys, gyro, accel, mag;
   bno.getCalibration(&sys, &gyro, &accel, &mag);
-  gloveData.calibrated = (sys >= 2 && gyro >= 2 && accel >= 2 && mag >= 2);
-  
-  // Send data packet
+  data.calibrated = (sys >= 2 && gyro >= 2 && accel >= 2 && mag >= 2);
+}
+
+void sendData() {
+  // Send in format: DATA:qw,qx,qy,qz,ax,ay,az,f0,f1,f2,f3,f4,cal
   Serial.print("DATA:");
-  Serial.print(gloveData.quat_w, 4); Serial.print(",");
-  Serial.print(gloveData.quat_x, 4); Serial.print(",");
-  Serial.print(gloveData.quat_y, 4); Serial.print(",");
-  Serial.print(gloveData.quat_z, 4); Serial.print(",");
-  Serial.print(gloveData.accel_x, 2); Serial.print(",");
-  Serial.print(gloveData.accel_y, 2); Serial.print(",");
-  Serial.print(gloveData.accel_z, 2); Serial.print(",");
-  Serial.print(gloveData.thumb_curl); Serial.print(",");
-  Serial.print(gloveData.index_curl); Serial.print(",");
-  Serial.print(gloveData.middle_curl); Serial.print(",");
-  Serial.print(gloveData.ring_curl); Serial.print(",");
-  Serial.print(gloveData.pinky_curl); Serial.print(",");
-  Serial.print(gloveData.calibrated ? "1" : "0");
-  Serial.println();
+  Serial.print(data.qw, 4); Serial.print(",");
+  Serial.print(data.qx, 4); Serial.print(",");
+  Serial.print(data.qy, 4); Serial.print(",");
+  Serial.print(data.qz, 4); Serial.print(",");
+  Serial.print(data.ax, 2); Serial.print(",");
+  Serial.print(data.ay, 2); Serial.print(",");
+  Serial.print(data.az, 2); Serial.print(",");
+  Serial.print(data.fingers[0]); Serial.print(",");
+  Serial.print(data.fingers[1]); Serial.print(",");
+  Serial.print(data.fingers[2]); Serial.print(",");
+  Serial.print(data.fingers[3]); Serial.print(",");
+  Serial.print(data.fingers[4]); Serial.print(",");
+  Serial.println(data.calibrated ? "1" : "0");
+}
+
+void handleCommands() {
+  if(!Serial.available()) return;
   
-  // Check for incoming haptic feedback commands
-  if (Serial.available()) {
-    String command = Serial.readStringUntil('\n');
-    command.trim();
+  String cmd = Serial.readStringUntil('\n');
+  cmd.trim();
+  
+  if(cmd.startsWith("HAPTIC:")) {
+    // Parse: HAPTIC:90,120,90,90,90
+    cmd = cmd.substring(7);
     
-    if (command.startsWith("HAPTIC:")) {
-      // Parse haptic command: HAPTIC:thumb,index,middle,ring,pinky
-      command = command.substring(7);  // Remove "HAPTIC:"
-      
-      int values[5];
-      int valueIndex = 0;
-      int startIndex = 0;
-      
-      for (int i = 0; i <= command.length() && valueIndex < 5; i++) {
-        if (i == command.length() || command[i] == ',') {
-          values[valueIndex] = command.substring(startIndex, i).toInt();
-          startIndex = i + 1;
-          valueIndex++;
-        }
+    int pos[5];
+    int idx = 0;
+    int start = 0;
+    
+    // Simple comma parsing
+    for(int i = 0; i <= cmd.length() && idx < 5; i++) {
+      if(i == cmd.length() || cmd[i] == ',') {
+        pos[idx] = cmd.substring(start, i).toInt();
+        pos[idx] = constrain(pos[idx], 0, 180);
+        start = i + 1;
+        idx++;
       }
-      
-      // Apply servo positions (constrain to 0-180 range)
-      thumbServo.write(constrain(values[0], 0, 180));
-      indexServo.write(constrain(values[1], 0, 180));
-      middleServo.write(constrain(values[2], 0, 180));
-      ringServo.write(constrain(values[3], 0, 180));
-      pinkyServo.write(constrain(values[4], 0, 180));
+    }
+    
+    // Apply servo positions
+    if(idx == 5) {
+      for(int i = 0; i < 5; i++) {
+        servos[i].write(pos[i]);
+      }
     }
   }
-  
-  delay(20);  // 50Hz update rate
+  else if(cmd == "CALIBRATE") {
+    // Reset calibration 
+    bno.setMode(OPERATION_MODE_CONFIG);
+    delay(25);
+    bno.setMode(OPERATION_MODE_NDOF);
+    Serial.println("Calibration reset - move glove in figure-8 patterns");
+  }
+  else if(cmd == "STATUS") {
+    uint8_t sys, gyro, accel, mag;
+    bno.getCalibration(&sys, &gyro, &accel, &mag);
+    Serial.print("CAL:");
+    Serial.print(sys); Serial.print(",");
+    Serial.print(gyro); Serial.print(",");
+    Serial.print(accel); Serial.print(",");
+    Serial.println(mag);
+  }
 }
