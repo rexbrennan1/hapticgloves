@@ -186,72 +186,166 @@ public:
         }
     }
     
-    virtual EVRInitError Activate(vr::TrackedDeviceIndex_t unObjectId) override {
-        objectId_ = unObjectId;
-        
-        // Get settings with proper error handling
-        char portNameBuffer[256];
-        vr::EVRSettingsError settingsError = vr::VRSettingsError_None;
-        
-        // Get serial port setting
-        vr::VRSettings()->GetString("driver_haptic_glove", "serial_port", portNameBuffer, sizeof(portNameBuffer), &settingsError);
-        
-        std::string portName;
-        if (settingsError == vr::VRSettingsError_None) {
-            portName = std::string(portNameBuffer);
-        } else {
-            // Use default if setting not found
-            portName = "COM3";
-            vr::VRDriverLog()->Log("Using default serial port COM3");
-        }
-        
-        // Get baud rate setting
-        vr::EVRSettingsError baudError = vr::VRSettingsError_None;
-        int baudRate = vr::VRSettings()->GetInt32("driver_haptic_glove", "serial_baudrate", &baudError);
-        if (baudError != vr::VRSettingsError_None) {
-            baudRate = 9600; // Default baud rate
-            vr::VRDriverLog()->Log("Using default baud rate 9600");
-        }
-        
-        // Open serial port
-        serialPort_ = new SerialPort(portName, baudRate);
-        if (!serialPort_->Open()) {
-            vr::VRDriverLog()->Log("Failed to open serial port");
-            return VRInitError_Driver_Failed;
-        }
-        
-        // Set up properties
-        vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(objectId_);
-        
-        vr::VRProperties()->SetStringProperty(props, Prop_ModelNumber_String, "HapticGlove_v1");
-        vr::VRProperties()->SetStringProperty(props, Prop_RenderModelName_String, "generic_controller");
-        vr::VRProperties()->SetStringProperty(props, Prop_SerialNumber_String, "HG001");
-        vr::VRProperties()->SetStringProperty(props, Prop_ManufacturerName_String, "DIY Haptics");
-        
-        vr::VRProperties()->SetInt32Property(props, Prop_DeviceClass_Int32, TrackedDeviceClass_Controller);
-        vr::VRProperties()->SetInt32Property(props, Prop_ControllerRoleHint_Int32, TrackedControllerRole_RightHand);
-        
-        // Create input components
-        vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &systemClickComponent_);
-        vr::VRDriverInput()->CreateBooleanComponent(props, "/input/grip/click", &gripClickComponent_);
-        vr::VRDriverInput()->CreateBooleanComponent(props, "/input/trigger/click", &triggerClickComponent_);
-        
-        vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/thumb", &thumbCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
-        vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/index", &indexCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
-        vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/middle", &middleCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
-        vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/ring", &ringCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
-        vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &pinkyCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
-        
-        // Create haptic component
-        vr::VRDriverInput()->CreateHapticComponent(props, "/output/haptic", &hapticComponent_);
-        
-        isActive_ = true;
-        
-        // Start update thread
-        updateThread_ = std::thread(&HapticGloveDevice::UpdateThread, this);
-        
-        return VRInitError_None;
+   virtual EVRInitError Activate(vr::TrackedDeviceIndex_t unObjectId) override {
+    objectId_ = unObjectId;
+    
+    vr::VRDriverLog()->Log("=== HapticGloveDevice::Activate() START ===");
+    vr::VRDriverLog()->Log(("Device ID assigned: " + std::to_string(unObjectId)).c_str());
+    
+    // Get settings with proper error handling
+    char portNameBuffer[256];
+    vr::EVRSettingsError settingsError = vr::VRSettingsError_None;
+    
+    // Get serial port setting
+    vr::VRSettings()->GetString("driver_haptic_glove", "serial_port", portNameBuffer, sizeof(portNameBuffer), &settingsError);
+    
+    std::string portName;
+    if (settingsError == vr::VRSettingsError_None) {
+        portName = std::string(portNameBuffer);
+        vr::VRDriverLog()->Log(("Using serial port from settings: " + portName).c_str());
+    } else {
+        portName = "COM3";
+        vr::VRDriverLog()->Log(("Settings error " + std::to_string(settingsError) + ", using default serial port COM3").c_str());
     }
+    
+    // Get baud rate setting
+    vr::EVRSettingsError baudError = vr::VRSettingsError_None;
+    int baudRate = vr::VRSettings()->GetInt32("driver_haptic_glove", "serial_baudrate", &baudError);
+    if (baudError != vr::VRSettingsError_None) {
+        baudRate = 9600;
+        vr::VRDriverLog()->Log(("Baud rate settings error " + std::to_string(baudError) + ", using default 9600").c_str());
+    } else {
+        vr::VRDriverLog()->Log(("Using baud rate from settings: " + std::to_string(baudRate)).c_str());
+    }
+    
+    // Attempt to open serial port
+    vr::VRDriverLog()->Log(("Attempting to open serial port: " + portName).c_str());
+    
+    serialPort_ = new SerialPort(portName, baudRate);
+    
+    if (!serialPort_->Open()) {
+        vr::VRDriverLog()->Log("WARNING: Failed to open serial port");
+        vr::VRDriverLog()->Log("Continuing without serial connection...");
+        delete serialPort_;
+        serialPort_ = nullptr;
+    } else {
+        vr::VRDriverLog()->Log("SUCCESS: Serial port opened successfully");
+        
+        // Test communication
+        vr::VRDriverLog()->Log("Testing serial communication...");
+        for (int i = 0; i < 5; i++) {
+            std::string testLine = serialPort_->ReadLine();
+            if (!testLine.empty()) {
+                vr::VRDriverLog()->Log(("Received: " + testLine).c_str());
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
+    
+    // Set up properties
+    vr::VRDriverLog()->Log("Setting up device properties...");
+    vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(objectId_);
+    vr::VRDriverLog()->Log(("Property container handle: " + std::to_string(props)).c_str());
+    
+    // Set basic properties - only use known working properties
+    vr::VRProperties()->SetStringProperty(props, Prop_ModelNumber_String, "HapticGlove_v1");
+    vr::VRProperties()->SetStringProperty(props, Prop_RenderModelName_String, "generic_controller");
+    vr::VRProperties()->SetStringProperty(props, Prop_SerialNumber_String, "HG001");
+    vr::VRProperties()->SetStringProperty(props, Prop_ManufacturerName_String, "DIY Haptics");
+    
+    vr::VRProperties()->SetInt32Property(props, Prop_DeviceClass_Int32, TrackedDeviceClass_Controller);
+    vr::VRProperties()->SetInt32Property(props, Prop_ControllerRoleHint_Int32, TrackedControllerRole_RightHand);
+    
+    // Set tracking properties
+    vr::VRProperties()->SetBoolProperty(props, Prop_WillDriftInYaw_Bool, false);
+    vr::VRProperties()->SetBoolProperty(props, Prop_DeviceCanPowerOff_Bool, true);
+    
+    vr::VRDriverLog()->Log("Basic properties set successfully");
+    
+    // Create input components
+    vr::VRDriverLog()->Log("Creating input components...");
+    
+    vr::EVRInputError inputError;
+    
+    inputError = vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &systemClickComponent_);
+    vr::VRDriverLog()->Log(("System click component: " + std::to_string(inputError)).c_str());
+    
+    inputError = vr::VRDriverInput()->CreateBooleanComponent(props, "/input/grip/click", &gripClickComponent_);
+    vr::VRDriverLog()->Log(("Grip click component: " + std::to_string(inputError)).c_str());
+    
+    inputError = vr::VRDriverInput()->CreateBooleanComponent(props, "/input/trigger/click", &triggerClickComponent_);
+    vr::VRDriverLog()->Log(("Trigger click component: " + std::to_string(inputError)).c_str());
+    
+    inputError = vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/thumb", &thumbCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
+    vr::VRDriverLog()->Log(("Thumb curl component: " + std::to_string(inputError)).c_str());
+    
+    inputError = vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/index", &indexCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
+    vr::VRDriverLog()->Log(("Index curl component: " + std::to_string(inputError)).c_str());
+    
+    inputError = vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/middle", &middleCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
+    vr::VRDriverLog()->Log(("Middle curl component: " + std::to_string(inputError)).c_str());
+    
+    inputError = vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/ring", &ringCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
+    vr::VRDriverLog()->Log(("Ring curl component: " + std::to_string(inputError)).c_str());
+    
+    inputError = vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &pinkyCurlComponent_, VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
+    vr::VRDriverLog()->Log(("Pinky curl component: " + std::to_string(inputError)).c_str());
+    
+    // Create haptic component
+    inputError = vr::VRDriverInput()->CreateHapticComponent(props, "/output/haptic", &hapticComponent_);
+    vr::VRDriverLog()->Log(("Haptic component: " + std::to_string(inputError)).c_str());
+    
+    vr::VRDriverLog()->Log("All input components created");
+    
+    // Initialize pose properly
+    vr::VRDriverLog()->Log("Initializing pose...");
+    
+    // Set the pose to be valid and connected
+    pose_.poseIsValid = true;
+    pose_.deviceIsConnected = true;
+    pose_.result = TrackingResult_Running_OK;
+    
+    // Initialize rotation quaternion
+    pose_.qRotation.w = 1.0;
+    pose_.qRotation.x = 0.0;
+    pose_.qRotation.y = 0.0;
+    pose_.qRotation.z = 0.0;
+    
+    // Initialize position (this is important!)
+    pose_.vecPosition[0] = 0.0f;
+    pose_.vecPosition[1] = 0.0f;
+    pose_.vecPosition[2] = 0.0f;
+    
+    // Zero out velocities
+    pose_.vecVelocity[0] = 0.0f;
+    pose_.vecVelocity[1] = 0.0f;
+    pose_.vecVelocity[2] = 0.0f;
+    
+    pose_.vecAngularVelocity[0] = 0.0f;
+    pose_.vecAngularVelocity[1] = 0.0f;
+    pose_.vecAngularVelocity[2] = 0.0f;
+    
+    // Set other pose properties
+    pose_.poseTimeOffset = 0.0;
+    pose_.willDriftInYaw = false;
+    pose_.shouldApplyHeadModel = false;
+    
+    vr::VRDriverLog()->Log("Pose initialized");
+    
+    // Send initial pose update
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(objectId_, pose_, sizeof(DriverPose_t));
+    vr::VRDriverLog()->Log("Initial pose sent to SteamVR");
+    
+    isActive_ = true;
+    
+    // Start update thread
+    vr::VRDriverLog()->Log("Starting update thread...");
+    updateThread_ = std::thread(&HapticGloveDevice::UpdateThread, this);
+    
+    vr::VRDriverLog()->Log("=== HapticGloveDevice::Activate() COMPLETED SUCCESSFULLY ===");
+    return VRInitError_None;
+}
     
     virtual void Deactivate() override {
         isActive_ = false;
@@ -260,6 +354,19 @@ public:
         }
         objectId_ = vr::k_unTrackedDeviceIndexInvalid;
     }
+
+    virtual void PowerOff() {
+    // Clean shutdown of the device
+    isActive_ = false;
+    if (updateThread_.joinable()) {
+        updateThread_.join();
+    }
+    if (serialPort_ && serialPort_->IsOpen()) {
+        // Reset servos to neutral position before shutdown
+        serialPort_->WriteLine("HAPTIC:90,90,90,90,90");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
     
     virtual void EnterStandby() override {}
     
@@ -278,20 +385,51 @@ public:
     }
     
     void UpdateThread() {
-        while (isActive_) {
-            if (serialPort_ && serialPort_->IsOpen()) {
-                std::string line = serialPort_->ReadLine();
+    vr::VRDriverLog()->Log("UpdateThread started");
+    
+    int dataPacketCount = 0;
+    auto lastLogTime = std::chrono::steady_clock::now();
+    
+    while (isActive_) {
+        if (serialPort_ && serialPort_->IsOpen()) {
+            std::string line = serialPort_->ReadLine();
+            
+            if (line.length() > 0) {
+                // Log every 100th packet to avoid spam
+                if (dataPacketCount % 100 == 0) {
+                    vr::VRDriverLog()->Log(("Data received: " + line).c_str());
+                }
                 
-                if (line.length() > 0 && line.substr(0, 5) == "DATA:") {
+                if (line.substr(0, 5) == "DATA:") {
+                    dataPacketCount++;
                     ParseGloveData(line.substr(5));
                     UpdatePose();
                     UpdateInputs();
+                    
+                    // Log status every 5 seconds
+                    auto now = std::chrono::steady_clock::now();
+                    if (std::chrono::duration_cast<std::chrono::seconds>(now - lastLogTime).count() >= 5) {
+                        vr::VRDriverLog()->Log(("Data packets processed: " + std::to_string(dataPacketCount)).c_str());
+                        lastLogTime = now;
+                    }
                 }
             }
-            
-            std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        } else {
+            // No serial connection - send dummy pose updates so device stays "alive"
+            if (dataPacketCount % 50 == 0) { // Every second at 50Hz
+                UpdatePose();
+                if (dataPacketCount == 0) {
+                    vr::VRDriverLog()->Log("No serial connection - sending dummy pose updates");
+                }
+            }
+            dataPacketCount++;
         }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
+    
+    vr::VRDriverLog()->Log("UpdateThread ended");
+}
     
     void ParseGloveData(const std::string& data) {
         std::stringstream ss(data);
@@ -414,39 +552,64 @@ private:
 // Driver Provider Class
 class HapticGloveDriverProvider : public vr::IServerTrackedDeviceProvider {
 public:
-    HapticGloveDriverProvider() : gloveDevice_(nullptr) {}
+    HapticGloveDriverProvider() : gloveDevice_(nullptr) {
+        vr::VRDriverLog()->Log("HapticGloveDriverProvider constructor called");
+    }
     
     virtual EVRInitError Init(vr::IVRDriverContext *pDriverContext) override {
+        vr::VRDriverLog()->Log("=== HapticGloveDriverProvider::Init() START ===");
+        
         VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
+        vr::VRDriverLog()->Log("OpenVR driver context initialized");
+        
+        // Log OpenVR version info
+        vr::VRDriverLog()->Log(("OpenVR Interface Version: " + std::string(vr::IVRServerDriverHost_Version)).c_str());
         
         gloveDevice_ = new HapticGloveDevice();
-        vr::VRServerDriverHost()->TrackedDeviceAdded("HapticGlove_001", TrackedDeviceClass_Controller, gloveDevice_);
+        vr::VRDriverLog()->Log("HapticGloveDevice created");
         
+        // Add device to SteamVR
+        bool deviceAdded = vr::VRServerDriverHost()->TrackedDeviceAdded("HapticGlove_001", TrackedDeviceClass_Controller, gloveDevice_);
+        vr::VRDriverLog()->Log(("TrackedDeviceAdded returned: " + std::to_string(deviceAdded)).c_str());
+        
+        if (!deviceAdded) {
+            vr::VRDriverLog()->Log("CRITICAL: Failed to add device to SteamVR!");
+            return VRInitError_Driver_Failed;
+        }
+        
+        vr::VRDriverLog()->Log("=== HapticGloveDriverProvider::Init() SUCCESS ===");
         return VRInitError_None;
     }
     
     virtual void Cleanup() override {
+        vr::VRDriverLog()->Log("HapticGloveDriverProvider::Cleanup() called");
         if (gloveDevice_) {
             delete gloveDevice_;
             gloveDevice_ = nullptr;
+            vr::VRDriverLog()->Log("HapticGloveDevice cleaned up");
         }
     }
     
     virtual const char * const *GetInterfaceVersions() override {
+        vr::VRDriverLog()->Log("GetInterfaceVersions() called");
         return vr::k_InterfaceVersions;
     }
     
     virtual void RunFrame() override {
-        // Called by OpenVR each frame
+        // Called by OpenVR each frame - don't log here as it's too frequent
     }
     
     virtual bool ShouldBlockStandbyMode() override {
         return false;
     }
     
-    virtual void EnterStandby() override {}
+    virtual void EnterStandby() override {
+        vr::VRDriverLog()->Log("EnterStandby() called");
+    }
     
-    virtual void LeaveStandby() override {}
+    virtual void LeaveStandby() override {
+        vr::VRDriverLog()->Log("LeaveStandby() called");
+    }
 
 private:
     HapticGloveDevice* gloveDevice_;
@@ -455,10 +618,19 @@ private:
 static HapticGloveDriverProvider g_driverProvider;
 
 HMD_DLL_EXPORT void *HmdDriverFactory(const char *pInterfaceName, int *pReturnCode) {
+    vr::VRDriverLog()->Log("=== HmdDriverFactory() called ===");
+    vr::VRDriverLog()->Log(("Requested interface: " + std::string(pInterfaceName)).c_str());
+    vr::VRDriverLog()->Log(("Expected interface: " + std::string(IServerTrackedDeviceProvider_Version)).c_str());
+    
     if (0 == strcmp(IServerTrackedDeviceProvider_Version, pInterfaceName)) {
+        vr::VRDriverLog()->Log("Returning driver provider instance");
+        if (pReturnCode) {
+            *pReturnCode = VRInitError_None;
+        }
         return &g_driverProvider;
     }
     
+    vr::VRDriverLog()->Log("Interface not found!");
     if (pReturnCode) {
         *pReturnCode = VRInitError_Init_InterfaceNotFound;
     }

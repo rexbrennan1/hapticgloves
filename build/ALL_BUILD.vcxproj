@@ -174,9 +174,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="E:\Projects\haptic_glove_project\build\driver_haptic_glove.vcxproj">
-      <Project>{AE9B2901-4CAD-3594-B0C6-6C0691601A74}</Project>
-      <Name>driver_haptic_glove</Name>
+    <ProjectReference Include="E:\Projects\haptic_glove_project\build\driver_haptic_glove_driver.vcxproj">
+      <Project>{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}</Project>
+      <Name>driver_haptic_glove_driver</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

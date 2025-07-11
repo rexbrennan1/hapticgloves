@@ -8,6 +8,9 @@
     "finger_curl_max": 1023,
     "haptic_strength": 1.0,
     "blocked_by_safe_mode": false,
-    "force_connected": false
+    "force_connected": false,
+    "debug_logging": true,
+    "connection_timeout_ms": 3000,
+    "retry_attempts": 3
   }
 }

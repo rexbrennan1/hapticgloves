@@ -210,7 +210,7 @@ OPENVR_INCLUDE_DIRS:PATH=E:/Projects/haptic_glove_project/openvr/headers
 OPENVR_LIBRARIES:FILEPATH=E:/Projects/haptic_glove_project/openvr/lib/win64/openvr_api.lib
 
 //Dependencies for the target
-driver_haptic_glove_LIB_DEPENDS:STATIC=general;E:/Projects/haptic_glove_project/openvr/lib/win64/openvr_api.lib;
+driver_haptic_glove_driver_LIB_DEPENDS:STATIC=general;E:/Projects/haptic_glove_project/openvr/lib/win64/openvr_api.lib;
 
 //Value Computed by CMake
 haptic_glove_driver_BINARY_DIR:STATIC=E:/Projects/haptic_glove_project/build

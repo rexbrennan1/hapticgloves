@@ -22,11 +22,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{AE9B2901-4CAD-3594-B0C6-6C0691601A74}</ProjectGuid>
+    <ProjectGuid>{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <Platform>x64</Platform>
-    <ProjectName>driver_haptic_glove</ProjectName>
+    <ProjectName>driver_haptic_glove_driver</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -59,27 +59,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\Debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">driver_haptic_glove.dir\Debug\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">driver_haptic_glove</TargetName>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">driver_haptic_glove_driver.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">driver_haptic_glove_driver</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">driver_haptic_glove.dir\Release\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">driver_haptic_glove</TargetName>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">driver_haptic_glove_driver.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">driver_haptic_glove_driver</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\MinSizeRel\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">driver_haptic_glove.dir\MinSizeRel\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">driver_haptic_glove</TargetName>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">driver_haptic_glove_driver.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">driver_haptic_glove_driver</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.dll</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\RelWithDebInfo\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">driver_haptic_glove.dir\RelWithDebInfo\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">driver_haptic_glove</TargetName>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">driver_haptic_glove_driver.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">driver_haptic_glove_driver</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.dll</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
@@ -107,12 +107,12 @@
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Debug";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Debug";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>E:\Projects\haptic_glove_project\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -124,8 +124,35 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying driver to SteamVR drivers folder</Message>
+      <Message>Copying DLL to correct location	Copying OpenVR API DLL	Copying OpenVR API DLL from SteamVR	Copying driver to SteamVR drivers folder</Message>
       <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/openvr/lib/win64/openvr_api.lib E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/bin/win64/openvr_api.dll" E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory E:/Projects/haptic_glove_project/build/haptic_glove_driver "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
@@ -143,9 +170,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>E:/Projects/haptic_glove_project/build/Debug/driver_haptic_glove.lib</ImportLibrary>
+      <ImportLibrary>E:/Projects/haptic_glove_project/build/Debug/driver_haptic_glove_driver.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/Debug/driver_haptic_glove.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem></SubSystem>
     </Link>
@@ -174,14 +201,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Release";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="Release";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>E:\Projects\haptic_glove_project\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -193,8 +220,35 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying driver to SteamVR drivers folder</Message>
+      <Message>Copying DLL to correct location	Copying OpenVR API DLL	Copying OpenVR API DLL from SteamVR	Copying driver to SteamVR drivers folder</Message>
       <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/openvr/lib/win64/openvr_api.lib E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/bin/win64/openvr_api.dll" E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory E:/Projects/haptic_glove_project/build/haptic_glove_driver "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
@@ -212,9 +266,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>E:/Projects/haptic_glove_project/build/Release/driver_haptic_glove.lib</ImportLibrary>
+      <ImportLibrary>E:/Projects/haptic_glove_project/build/Release/driver_haptic_glove_driver.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/Release/driver_haptic_glove.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem></SubSystem>
     </Link>
@@ -243,14 +297,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="MinSizeRel";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="MinSizeRel";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <DebugInformationFormat>
       </DebugInformationFormat>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"MinSizeRel\";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"MinSizeRel\";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>E:\Projects\haptic_glove_project\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -262,8 +316,35 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying driver to SteamVR drivers folder</Message>
+      <Message>Copying DLL to correct location	Copying OpenVR API DLL	Copying OpenVR API DLL from SteamVR	Copying driver to SteamVR drivers folder</Message>
       <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/openvr/lib/win64/openvr_api.lib E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/bin/win64/openvr_api.dll" E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory E:/Projects/haptic_glove_project/build/haptic_glove_driver "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
@@ -281,9 +362,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>E:/Projects/haptic_glove_project/build/MinSizeRel/driver_haptic_glove.lib</ImportLibrary>
+      <ImportLibrary>E:/Projects/haptic_glove_project/build/MinSizeRel/driver_haptic_glove_driver.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/MinSizeRel/driver_haptic_glove.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem></SubSystem>
     </Link>
@@ -313,12 +394,12 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <TreatWChar_tAsBuiltInType></TreatWChar_tAsBuiltInType>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="RelWithDebInfo";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR="RelWithDebInfo";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
     </ClCompile>
     <ResourceCompile>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"RelWithDebInfo\";driver_haptic_glove_EXPORTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"RelWithDebInfo\";driver_haptic_glove_driver_EXPORTS</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>E:\Projects\haptic_glove_project\openvr\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
@@ -330,8 +411,35 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying driver to SteamVR drivers folder</Message>
+      <Message>Copying DLL to correct location	Copying OpenVR API DLL	Copying OpenVR API DLL from SteamVR	Copying driver to SteamVR drivers folder</Message>
       <Command>setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different E:/Projects/haptic_glove_project/openvr/lib/win64/openvr_api.lib E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/bin/win64/openvr_api.dll" E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory E:/Projects/haptic_glove_project/build/haptic_glove_driver "C:\Program Files (x86)/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver"
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
@@ -349,9 +457,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers></ImageHasSafeExceptionHandlers>
-      <ImportLibrary>E:/Projects/haptic_glove_project/build/RelWithDebInfo/driver_haptic_glove.lib</ImportLibrary>
+      <ImportLibrary>E:/Projects/haptic_glove_project/build/RelWithDebInfo/driver_haptic_glove_driver.lib</ImportLibrary>
       <LinkErrorReporting></LinkErrorReporting>
-      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/RelWithDebInfo/driver_haptic_glove.pdb</ProgramDataBaseFile>
+      <ProgramDataBaseFile>E:/Projects/haptic_glove_project/build/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.pdb</ProgramDataBaseFile>
       <RandomizedBaseAddress></RandomizedBaseAddress>
       <SubSystem></SubSystem>
     </Link>

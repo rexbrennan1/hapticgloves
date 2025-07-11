@@ -4,14 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ALL_BUILD", "ALL_BUILD.vcxproj", "{09D86C43-3CAF-37C8-B9E6-467C12B2E6B7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E238E889-1B21-3A01-B470-BA447A509028} = {E238E889-1B21-3A01-B470-BA447A509028}
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74} = {AE9B2901-4CAD-3594-B0C6-6C0691601A74}
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6} = {D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZERO_CHECK", "ZERO_CHECK.vcxproj", "{E238E889-1B21-3A01-B470-BA447A509028}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "driver_haptic_glove", "driver_haptic_glove.vcxproj", "{AE9B2901-4CAD-3594-B0C6-6C0691601A74}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "driver_haptic_glove_driver", "driver_haptic_glove_driver.vcxproj", "{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E238E889-1B21-3A01-B470-BA447A509028} = {E238E889-1B21-3A01-B470-BA447A509028}
 	EndProjectSection
@@ -36,14 +36,14 @@ Global
 		{E238E889-1B21-3A01-B470-BA447A509028}.MinSizeRel|x64.Build.0 = MinSizeRel|x64
 		{E238E889-1B21-3A01-B470-BA447A509028}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
 		{E238E889-1B21-3A01-B470-BA447A509028}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.Debug|x64.ActiveCfg = Debug|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.Debug|x64.Build.0 = Debug|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.Release|x64.ActiveCfg = Release|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.Release|x64.Build.0 = Release|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.MinSizeRel|x64.ActiveCfg = MinSizeRel|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.MinSizeRel|x64.Build.0 = MinSizeRel|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
-		{AE9B2901-4CAD-3594-B0C6-6C0691601A74}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.Debug|x64.ActiveCfg = Debug|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.Debug|x64.Build.0 = Debug|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.Release|x64.ActiveCfg = Release|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.Release|x64.Build.0 = Release|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.MinSizeRel|x64.ActiveCfg = MinSizeRel|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.MinSizeRel|x64.Build.0 = MinSizeRel|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
+		{D4C2B52B-0005-3B9E-B431-32A61D1E5DC6}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2BB9D8D7-B552-3701-B57C-0A36EC71960E}
