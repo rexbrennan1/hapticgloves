@@ -1,53 +1,78 @@
 {
-  "controller_type": "haptic_glove",
-  "device_class": "TrackedDeviceClass_Controller",
-  "input_source": {
-    "/input/system": {
-      "type": "button",
-      "binding_image_point": [32, 32],
-      "order": 0
+    "jsonid": "haptic_glove_profile",
+    "controller_type": "haptic_glove",
+    "category": "TrackedDeviceClass_Controller",
+    "input_source": {
+        "/input/system": {
+            "capability": "button",
+            "type": "boolean"
+        },
+        "/input/grip": {
+            "capability": "button", 
+            "type": "boolean"
+        },
+        "/input/trigger": {
+            "capability": "button",
+            "type": "boolean"
+        },
+        "/input/finger/thumb": {
+            "capability": "scalar",
+            "type": "scalar"
+        },
+        "/input/finger/index": {
+            "capability": "scalar", 
+            "type": "scalar"
+        },
+        "/input/finger/middle": {
+            "capability": "scalar",
+            "type": "scalar"
+        },
+        "/input/finger/ring": {
+            "capability": "scalar",
+            "type": "scalar"
+        },
+        "/input/finger/pinky": {
+            "capability": "scalar",
+            "type": "scalar"
+        }
     },
-    "/input/grip": {
-      "type": "button", 
-      "binding_image_point": [32, 32],
-      "order": 1
+    "output": {
+        "/output/haptic": {
+            "capability": "haptic",
+            "type": "vibration"
+        }
     },
-    "/input/trigger": {
-      "type": "button",
-      "binding_image_point": [32, 32], 
-      "order": 2
-    },
-    "/input/finger/thumb": {
-      "type": "scalar",
-      "binding_image_point": [32, 32],
-      "order": 3
-    },
-    "/input/finger/index": {
-      "type": "scalar",
-      "binding_image_point": [32, 32],
-      "order": 4
-    },
-    "/input/finger/middle": {
-      "type": "scalar",
-      "binding_image_point": [32, 32],
-      "order": 5
-    },
-    "/input/finger/ring": {
-      "type": "scalar",
-      "binding_image_point": [32, 32],
-      "order": 6
-    },
-    "/input/finger/pinky": {
-      "type": "scalar",
-      "binding_image_point": [32, 32],
-      "order": 7
+    "bindings": {
+        "/actions/default/in/InteractUI": {
+            "sources": [
+                {
+                    "path": "/input/trigger/click",
+                    "mode": "button"
+                }
+            ]
+        },
+        "/actions/default/in/Grab": {
+            "sources": [
+                {
+                    "path": "/input/grip/click", 
+                    "mode": "button"
+                }
+            ]
+        },
+        "/actions/default/in/Menu": {
+            "sources": [
+                {
+                    "path": "/input/system/click",
+                    "mode": "button"
+                }
+            ]
+        },
+        "/actions/default/out/Haptic": {
+            "sources": [
+                {
+                    "path": "/output/haptic"
+                }
+            ]
+        }
     }
-  },
-  "output_source": {
-    "/output/haptic": {
-      "type": "haptic",
-      "binding_image_point": [32, 32],
-      "order": 0
-    }
-  }
 }

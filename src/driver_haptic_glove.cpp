@@ -189,12 +189,29 @@ public:
     virtual EVRInitError Activate(vr::TrackedDeviceIndex_t unObjectId) override {
         objectId_ = unObjectId;
         
-        // Get settings with proper string handling
+        // Get settings with proper error handling
         char portNameBuffer[256];
-        vr::EVRSettingsError settingsError;
-        vr::VRSettings()->GetString("driver_haptic_glove", "serial_port", portNameBuffer, sizeof(portNameBuffer), "COM3");
-        std::string portName = std::string(portNameBuffer);
-        int baudRate = 9600; //vr::VRSettings()->GetInt32("driver_haptic_glove", "serial_baudrate", 9600);
+        vr::EVRSettingsError settingsError = vr::VRSettingsError_None;
+        
+        // Get serial port setting
+        vr::VRSettings()->GetString("driver_haptic_glove", "serial_port", portNameBuffer, sizeof(portNameBuffer), &settingsError);
+        
+        std::string portName;
+        if (settingsError == vr::VRSettingsError_None) {
+            portName = std::string(portNameBuffer);
+        } else {
+            // Use default if setting not found
+            portName = "COM3";
+            vr::VRDriverLog()->Log("Using default serial port COM3");
+        }
+        
+        // Get baud rate setting
+        vr::EVRSettingsError baudError = vr::VRSettingsError_None;
+        int baudRate = vr::VRSettings()->GetInt32("driver_haptic_glove", "serial_baudrate", &baudError);
+        if (baudError != vr::VRSettingsError_None) {
+            baudRate = 9600; // Default baud rate
+            vr::VRDriverLog()->Log("Using default baud rate 9600");
+        }
         
         // Open serial port
         serialPort_ = new SerialPort(portName, baudRate);
@@ -249,8 +266,6 @@ public:
     virtual void *GetComponent(const char *pchComponentNameAndVersion) override {
         return nullptr;
     }
-    
-     // virtual void PowerOff() override {}
     
     virtual void DebugRequest(const char *pchRequest, char *pchResponseBuffer, uint32_t unResponseBufferSize) override {
         if (unResponseBufferSize >= 1) {
