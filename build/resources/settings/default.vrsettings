@@ -1,6 +1,0 @@
-{
-  "driver_haptic_glove": {
-    "serial_port": "COM3",
-    "enable_debug_logging": true
-  }
-}
