@@ -1,5 +1,5 @@
 /*
- * VR Haptic Glove Firmware
+ * VR Haptic Glove Firmware - Simplified (No Calibration)
  * Right hand only, 9600 baud, simple and reliable
  */
 
@@ -24,7 +24,6 @@ struct GloveData {
   float qw, qx, qy, qz;           // Quaternion rotation
   float ax, ay, az;               // Accelerometer 
   int fingers[5];                 // Finger curl values (0-1023)
-  bool calibrated;                // IMU calibration status
 };
 
 GloveData data;
@@ -33,14 +32,15 @@ void setup() {
   Serial.begin(9600);
   Serial.println("Starting VR Haptic Glove...");
   
-  // Initialize IMU
+  // Initialize IMU - no calibration required
   if (!bno.begin()) {
     Serial.println("ERROR: BNO055 not found!");
-    while(1) delay(1000);  // Stop here if no IMU
+    while(1) delay(1000);
   }
   
-  bno.setMode(OPERATION_MODE_NDOF);
-  Serial.println("BNO055 initialized");
+  // Use IMUPLUS mode (no magnetometer calibration needed)
+  bno.setMode(OPERATION_MODE_IMUPLUS);
+  Serial.println("BNO055 initialized in IMUPLUS mode");
   
   // Initialize servos
   for(int i = 0; i < 5; i++) {
@@ -68,7 +68,7 @@ void readSensors() {
   data.qy = q.y();
   data.qz = q.z();
   
-  // Handle NaN values during calibration
+  // Handle NaN values (shouldn't happen in IMUPLUS mode)
   if(isnan(data.qw)) {
     data.qw = 1.0;
     data.qx = data.qy = data.qz = 0.0;
@@ -88,15 +88,10 @@ void readSensors() {
     data.fingers[i] = (lastFingers[i] * 3 + raw) / 4;  // Simple filter
     lastFingers[i] = data.fingers[i];
   }
-  
-  // Check calibration status
-  uint8_t sys, gyro, accel, mag;
-  bno.getCalibration(&sys, &gyro, &accel, &mag);
-  data.calibrated = (sys >= 2 && gyro >= 2 && accel >= 2 && mag >= 2);
 }
 
 void sendData() {
-  // Send in format: DATA:qw,qx,qy,qz,ax,ay,az,f0,f1,f2,f3,f4,cal
+  // Send in format: DATA:qw,qx,qy,qz,ax,ay,az,f0,f1,f2,f3,f4
   Serial.print("DATA:");
   Serial.print(data.qw, 4); Serial.print(",");
   Serial.print(data.qx, 4); Serial.print(",");
@@ -109,8 +104,7 @@ void sendData() {
   Serial.print(data.fingers[1]); Serial.print(",");
   Serial.print(data.fingers[2]); Serial.print(",");
   Serial.print(data.fingers[3]); Serial.print(",");
-  Serial.print(data.fingers[4]); Serial.print(",");
-  Serial.println(data.calibrated ? "1" : "0");
+  Serial.println(data.fingers[4]);  // No comma after last value
 }
 
 void handleCommands() {
@@ -144,20 +138,11 @@ void handleCommands() {
       }
     }
   }
-  else if(cmd == "CALIBRATE") {
-    // Reset calibration 
-    bno.setMode(OPERATION_MODE_CONFIG);
-    delay(25);
-    bno.setMode(OPERATION_MODE_NDOF);
-    Serial.println("Calibration reset - move glove in figure-8 patterns");
-  }
   else if(cmd == "STATUS") {
-    uint8_t sys, gyro, accel, mag;
-    bno.getCalibration(&sys, &gyro, &accel, &mag);
-    Serial.print("CAL:");
-    Serial.print(sys); Serial.print(",");
-    Serial.print(gyro); Serial.print(",");
-    Serial.print(accel); Serial.print(",");
-    Serial.println(mag);
+    Serial.print("MODE: IMUPLUS, Quat: ");
+    Serial.print(data.qw, 3); Serial.print(" ");
+    Serial.print(data.qx, 3); Serial.print(" ");
+    Serial.print(data.qy, 3); Serial.print(" ");
+    Serial.println(data.qz, 3);
   }
 }

@@ -1,0 +1,47 @@
+{
+    "jsonid": "haptic_glove_input_profile",
+    "controller_type": "haptic_glove",
+    "category": "TrackedDeviceClass_Controller",
+    "description": "VR Haptic Glove Controller",
+    "name": "Haptic Glove",
+    "input_source": {
+        "/input/grip": {
+            "capability": "button",
+            "type": "boolean"
+        },
+        "/input/trigger": {
+            "capability": "button",
+            "type": "boolean"
+        },
+        "/input/system": {
+            "capability": "button",
+            "type": "boolean"
+        },
+        "/input/finger/thumb": {
+            "capability": "scalar",
+            "type": "scalar"
+        },
+        "/input/finger/index": {
+            "capability": "scalar",
+            "type": "scalar"
+        },
+        "/input/finger/middle": {
+            "capability": "scalar",
+            "type": "scalar"
+        },
+        "/input/finger/ring": {
+            "capability": "scalar",
+            "type": "scalar"
+        },
+        "/input/finger/pinky": {
+            "capability": "scalar",
+            "type": "scalar"
+        }
+    },
+    "output": {
+        "/output/haptic": {
+            "capability": "haptic",
+            "type": "vibration"
+        }
+    }
+}

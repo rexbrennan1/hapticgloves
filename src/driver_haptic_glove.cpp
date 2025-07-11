@@ -1,6 +1,5 @@
 /*
- * VR Haptic Glove OpenVR Driver
- * Simple, clean implementation for right hand glove
+ * Simple VR Hand Tracker - Just rotation tracking, no buttons
  */
 
 #include <openvr_driver.h>
@@ -15,12 +14,10 @@ using namespace vr;
 
 #if defined(_WIN32)
 #define HMD_DLL_EXPORT extern "C" __declspec(dllexport)
-#else
-#error "Windows only"
 #endif
 
 //=============================================================================
-// Serial Communication
+// Serial Communication (same as before)
 //=============================================================================
 class SerialPort {
 private:
@@ -38,13 +35,11 @@ public:
     
     bool Open() {
         std::string fullPort = "\\\\.\\" + port;
-        
         handle = CreateFileA(fullPort.c_str(), GENERIC_READ | GENERIC_WRITE,
                            0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         
         if(handle == INVALID_HANDLE_VALUE) return false;
         
-        // Configure serial port
         DCB dcb = {0};
         dcb.DCBlength = sizeof(dcb);
         if(!GetCommState(handle, &dcb)) return false;
@@ -56,13 +51,10 @@ public:
         
         if(!SetCommState(handle, &dcb)) return false;
         
-        // Set timeouts
         COMMTIMEOUTS timeouts = {0};
         timeouts.ReadIntervalTimeout = 50;
         timeouts.ReadTotalTimeoutConstant = 50;
         timeouts.ReadTotalTimeoutMultiplier = 10;
-        timeouts.WriteTotalTimeoutConstant = 50;
-        timeouts.WriteTotalTimeoutMultiplier = 10;
         SetCommTimeouts(handle, &timeouts);
         
         return true;
@@ -80,136 +72,90 @@ public:
         return line;
     }
     
-    bool WriteLine(const std::string& data) {
-        std::string line = data + "\n";
-        DWORD written;
-        return WriteFile(handle, line.c_str(), line.length(), &written, NULL);
-    }
-    
     bool IsOpen() const { return handle != INVALID_HANDLE_VALUE; }
 };
 
 //=============================================================================
-// Glove Data
+// Simple Hand Tracker - Just rotation tracking
 //=============================================================================
-struct GloveData {
-    float qw, qx, qy, qz;      // Quaternion
-    float ax, ay, az;          // Accelerometer  
-    int fingers[5];            // Finger curl (0-1023)
-    bool calibrated;           // IMU calibration status
-    
-    GloveData() : qw(1), qx(0), qy(0), qz(0), ax(0), ay(0), az(0), calibrated(false) {
-        for(int i = 0; i < 5; i++) fingers[i] = 512;
-    }
-};
-
-//=============================================================================
-// Haptic Glove Device
-//=============================================================================
-class HapticGlove : public ITrackedDeviceServerDriver {
+class SimpleHandTracker : public ITrackedDeviceServerDriver {
 private:
     TrackedDeviceIndex_t deviceId;
     SerialPort* serial;
     std::thread updateThread;
     bool active;
     DriverPose_t pose;
-    GloveData gloveData;
     
-    // Input components
-    VRInputComponentHandle_t inputGrip, inputTrigger, inputSystem;
-    VRInputComponentHandle_t inputFingers[5];
-    VRInputComponentHandle_t outputHaptic;
+    // Hand data
+    struct {
+        float qw, qx, qy, qz;
+        float fingers[5];
+    } handData;
     
 public:
-    HapticGlove() : deviceId(k_unTrackedDeviceIndexInvalid), serial(nullptr), active(false) {
+    SimpleHandTracker() : deviceId(k_unTrackedDeviceIndexInvalid), serial(nullptr), active(false) {
         // Initialize pose
         memset(&pose, 0, sizeof(pose));
         pose.qRotation.w = 1.0;
         pose.poseIsValid = true;
         pose.deviceIsConnected = true;
         pose.result = TrackingResult_Running_OK;
+        
+        // Initialize hand data
+        handData.qw = 1.0f;
+        handData.qx = handData.qy = handData.qz = 0.0f;
+        for(int i = 0; i < 5; i++) handData.fingers[i] = 0.5f;
     }
     
-    ~HapticGlove() {
+    ~SimpleHandTracker() {
         if(serial) delete serial;
     }
     
-    //-------------------------------------------------------------------------
-    // ITrackedDeviceServerDriver interface
-    //-------------------------------------------------------------------------
     EVRInitError Activate(TrackedDeviceIndex_t unObjectId) override {
         deviceId = unObjectId;
-        VRDriverLog()->Log("HapticGlove: Activating device");
+        VRDriverLog()->Log("SimpleHandTracker: Activating");
         
-        // Get COM port from settings
+        // Get COM port
         char portBuffer[32];
         vr::EVRSettingsError settingsError = vr::VRSettingsError_None;
         VRSettings()->GetString("driver_haptic_glove", "serial_port", portBuffer, sizeof(portBuffer), &settingsError);
+        std::string portName = (settingsError == vr::VRSettingsError_None) ? std::string(portBuffer) : "COM3";
         
-        std::string portName;
-        if(settingsError == vr::VRSettingsError_None) {
-            portName = std::string(portBuffer);
-        } else {
-            portName = "COM3";  // Default fallback
-        }
+        VRDriverLog()->Log(("SimpleHandTracker: Using port " + portName).c_str());
         
-        VRDriverLog()->Log(("HapticGlove: Using port " + portName).c_str());
-        
-        // Open serial connection
+        // Open serial
         serial = new SerialPort(portName);
         if(!serial->Open()) {
-            VRDriverLog()->Log("HapticGlove: Failed to open serial port - continuing without");
+            VRDriverLog()->Log("SimpleHandTracker: Failed to open serial - continuing anyway");
             delete serial;
             serial = nullptr;
         } else {
-            VRDriverLog()->Log("HapticGlove: Serial port opened successfully");
+            VRDriverLog()->Log("SimpleHandTracker: Serial opened successfully");
         }
         
-        // Set device properties
+        // Set properties - make it a basic tracker
         PropertyContainerHandle_t props = VRProperties()->TrackedDeviceToPropertyContainer(deviceId);
-        VRProperties()->SetStringProperty(props, Prop_ModelNumber_String, "HapticGlove_v1");
-        VRProperties()->SetStringProperty(props, Prop_SerialNumber_String, "HG_RIGHT_001");
-        VRProperties()->SetStringProperty(props, Prop_ManufacturerName_String, "DIY Haptics");
-        VRProperties()->SetInt32Property(props, Prop_DeviceClass_Int32, TrackedDeviceClass_Controller);
-        VRProperties()->SetInt32Property(props, Prop_ControllerRoleHint_Int32, TrackedControllerRole_RightHand);
+        VRProperties()->SetStringProperty(props, Prop_ModelNumber_String, "Hand Tracker");
+        VRProperties()->SetStringProperty(props, Prop_SerialNumber_String, "HAND_001");
+        VRProperties()->SetStringProperty(props, Prop_ManufacturerName_String, "Custom");
+        VRProperties()->SetInt32Property(props, Prop_DeviceClass_Int32, TrackedDeviceClass_GenericTracker);
         
-        // Create input components
-        VRDriverInput()->CreateBooleanComponent(props, "/input/grip/click", &inputGrip);
-        VRDriverInput()->CreateBooleanComponent(props, "/input/trigger/click", &inputTrigger);
-        VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &inputSystem);
-        
-        // Create finger tracking components
-        const char* fingerNames[] = {"/input/finger/thumb", "/input/finger/index", 
-                                   "/input/finger/middle", "/input/finger/ring", "/input/finger/pinky"};
-        for(int i = 0; i < 5; i++) {
-            VRDriverInput()->CreateScalarComponent(props, fingerNames[i], &inputFingers[i], 
-                                                 VRScalarType_Absolute, VRScalarUnits_NormalizedOneSided);
-        }
-        
-        // Create haptic output
-        VRDriverInput()->CreateHapticComponent(props, "/output/haptic", &outputHaptic);
+        VRDriverLog()->Log("SimpleHandTracker: Properties set");
         
         // Start update thread
         active = true;
-        updateThread = std::thread(&HapticGlove::UpdateLoop, this);
+        updateThread = std::thread(&SimpleHandTracker::UpdateLoop, this);
         
-        VRDriverLog()->Log("HapticGlove: Activation complete");
+        VRDriverLog()->Log("SimpleHandTracker: Activation complete");
         return VRInitError_None;
     }
     
     void Deactivate() override {
-        VRDriverLog()->Log("HapticGlove: Deactivating");
+        VRDriverLog()->Log("SimpleHandTracker: Deactivating");
         active = false;
         if(updateThread.joinable()) updateThread.join();
         deviceId = k_unTrackedDeviceIndexInvalid;
     }
-    
-    // void PowerOff() override {
-    //     VRDriverLog()->Log("HapticGlove: Power off");
-    //     if(serial && serial->IsOpen()) {
-    //         serial->WriteLine("HAPTIC:90,90,90,90,90");  // Reset servos
-    //     }
-    // }
     
     void EnterStandby() override {}
     void* GetComponent(const char* pchComponentNameAndVersion) override { return nullptr; }
@@ -219,33 +165,38 @@ public:
     
     DriverPose_t GetPose() override { return pose; }
     
-    //-------------------------------------------------------------------------
-    // Update loop
-    //-------------------------------------------------------------------------
     void UpdateLoop() {
-        VRDriverLog()->Log("HapticGlove: Update thread started");
+        VRDriverLog()->Log("SimpleHandTracker: Update loop started");
+        
+        int updateCount = 0;
         
         while(active) {
+            updateCount++;
+            
             if(serial && serial->IsOpen()) {
                 std::string line = serial->ReadLine();
                 if(!line.empty() && line.substr(0, 5) == "DATA:") {
-                    if(ParseData(line.substr(5))) {
-                        UpdatePose();
-                        UpdateInputs();
-                    }
+                    ParseData(line.substr(5));
                 }
-            } else {
-                // No serial - send dummy updates to keep device alive
-                UpdatePose();
+            }
+            
+            UpdatePose();
+            
+            // Log every 5 seconds
+            if(updateCount % 250 == 1) {
+                VRDriverLog()->Log(("SimpleHandTracker: Update " + std::to_string(updateCount) + 
+                                   ", Quat: " + std::to_string(handData.qw) + "," + 
+                                   std::to_string(handData.qx) + "," + std::to_string(handData.qy) + "," + 
+                                   std::to_string(handData.qz)).c_str());
             }
             
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
         }
         
-        VRDriverLog()->Log("HapticGlove: Update thread ended");
+        VRDriverLog()->Log("SimpleHandTracker: Update loop ended");
     }
     
-    bool ParseData(const std::string& data) {
+    void ParseData(const std::string& data) {
         std::vector<std::string> tokens;
         std::stringstream ss(data);
         std::string token;
@@ -254,101 +205,73 @@ public:
             tokens.push_back(token);
         }
         
-        if(tokens.size() < 13) return false;
-        
-        try {
-            gloveData.qw = std::stof(tokens[0]);
-            gloveData.qx = std::stof(tokens[1]);
-            gloveData.qy = std::stof(tokens[2]);
-            gloveData.qz = std::stof(tokens[3]);
-            gloveData.ax = std::stof(tokens[4]);
-            gloveData.ay = std::stof(tokens[5]);
-            gloveData.az = std::stof(tokens[6]);
-            gloveData.fingers[0] = std::stoi(tokens[7]);
-            gloveData.fingers[1] = std::stoi(tokens[8]);
-            gloveData.fingers[2] = std::stoi(tokens[9]);
-            gloveData.fingers[3] = std::stoi(tokens[10]);
-            gloveData.fingers[4] = std::stoi(tokens[11]);
-            gloveData.calibrated = (tokens[12] == "1");
-            return true;
-        } catch(...) {
-            return false;
+        if(tokens.size() >= 12) {
+            try {
+                handData.qw = std::stof(tokens[0]);
+                handData.qx = std::stof(tokens[1]);
+                handData.qy = std::stof(tokens[2]);
+                handData.qz = std::stof(tokens[3]);
+                // Skip accelerometer (tokens 4-6)
+                handData.fingers[0] = std::stof(tokens[7]) / 1023.0f;
+                handData.fingers[1] = std::stof(tokens[8]) / 1023.0f;
+                handData.fingers[2] = std::stof(tokens[9]) / 1023.0f;
+                handData.fingers[3] = std::stof(tokens[10]) / 1023.0f;
+                handData.fingers[4] = std::stof(tokens[11]) / 1023.0f;
+            } catch(...) {
+                // Ignore parse errors
+            }
         }
     }
     
     void UpdatePose() {
-        // Update rotation from IMU
-        pose.qRotation.w = gloveData.qw;
-        pose.qRotation.x = gloveData.qx;
-        pose.qRotation.y = gloveData.qy;
-        pose.qRotation.z = gloveData.qz;
+        // Apply rotation directly
+        pose.qRotation.w = handData.qw;
+        pose.qRotation.x = handData.qx;
+        pose.qRotation.y = handData.qy;
+        pose.qRotation.z = handData.qz;
         
-        // Set tracking status based on calibration
-        pose.result = gloveData.calibrated ? TrackingResult_Running_OK : TrackingResult_Running_OutOfRange;
+        // Fixed position - visible in front of user
+        pose.vecPosition[0] = 0.3f;   // Right
+        pose.vecPosition[1] = 1.2f;   // Up
+        pose.vecPosition[2] = -0.5f;  // Forward
         
-        // Send pose to SteamVR
+        // Always tracked
+        pose.result = TrackingResult_Running_OK;
+        pose.poseIsValid = true;
+        pose.deviceIsConnected = true;
+        
+        // Send to SteamVR
         if(deviceId != k_unTrackedDeviceIndexInvalid) {
             VRServerDriverHost()->TrackedDevicePoseUpdated(deviceId, pose, sizeof(DriverPose_t));
-        }
-    }
-    
-    void UpdateInputs() {
-        if(deviceId == k_unTrackedDeviceIndexInvalid) return;
-        
-        // Convert finger values to 0.0-1.0 range
-        float fingerValues[5];
-        for(int i = 0; i < 5; i++) {
-            fingerValues[i] = gloveData.fingers[i] / 1023.0f;
-            VRDriverInput()->UpdateScalarComponent(inputFingers[i], fingerValues[i], 0.0);
-        }
-        
-        // Simple gesture recognition
-        bool grip = (fingerValues[0] > 0.7f && fingerValues[1] > 0.7f && fingerValues[2] > 0.7f);
-        bool trigger = (fingerValues[1] > 0.8f);  // Index finger
-        bool system = (fingerValues[0] > 0.8f && fingerValues[2] > 0.8f && 
-                      fingerValues[3] > 0.8f && fingerValues[4] > 0.8f);  // All except index
-        
-        VRDriverInput()->UpdateBooleanComponent(inputGrip, grip, 0.0);
-        VRDriverInput()->UpdateBooleanComponent(inputTrigger, trigger, 0.0);
-        VRDriverInput()->UpdateBooleanComponent(inputSystem, system, 0.0);
-    }
-    
-    void SendHaptic(float strength) {
-        if(serial && serial->IsOpen()) {
-            int value = 90 + (int)(strength * 90);  // 90-180 range
-            std::string cmd = "HAPTIC:" + std::to_string(value) + "," + std::to_string(value) + "," +
-                             std::to_string(value) + "," + std::to_string(value) + "," + std::to_string(value);
-            serial->WriteLine(cmd);
         }
     }
 };
 
 //=============================================================================
-// Driver Provider
+// Simple Provider
 //=============================================================================
-class HapticGloveProvider : public IServerTrackedDeviceProvider {
+class SimpleProvider : public IServerTrackedDeviceProvider {
 private:
-    HapticGlove* glove;
+    SimpleHandTracker* tracker;
     
 public:
-    HapticGloveProvider() : glove(nullptr) {}
+    SimpleProvider() : tracker(nullptr) {}
     
     EVRInitError Init(IVRDriverContext* pDriverContext) override {
         VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
-        VRDriverLog()->Log("HapticGloveProvider: Initializing");
+        VRDriverLog()->Log("SimpleProvider: Initializing");
         
-        glove = new HapticGlove();
-        VRServerDriverHost()->TrackedDeviceAdded("haptic_glove_right", TrackedDeviceClass_Controller, glove);
+        tracker = new SimpleHandTracker();
+        VRServerDriverHost()->TrackedDeviceAdded("simple_hand_tracker", TrackedDeviceClass_GenericTracker, tracker);
         
-        VRDriverLog()->Log("HapticGloveProvider: Initialization complete");
+        VRDriverLog()->Log("SimpleProvider: Hand tracker added");
         return VRInitError_None;
     }
     
     void Cleanup() override {
-        VRDriverLog()->Log("HapticGloveProvider: Cleanup");
-        if(glove) {
-            delete glove;
-            glove = nullptr;
+        if(tracker) {
+            delete tracker;
+            tracker = nullptr;
         }
     }
     
@@ -360,9 +283,9 @@ public:
 };
 
 //=============================================================================
-// DLL Export
+// Export
 //=============================================================================
-static HapticGloveProvider g_provider;
+static SimpleProvider g_provider;
 
 HMD_DLL_EXPORT void* HmdDriverFactory(const char* pInterfaceName, int* pReturnCode) {
     if(0 == strcmp(IServerTrackedDeviceProvider_Version, pInterfaceName)) {

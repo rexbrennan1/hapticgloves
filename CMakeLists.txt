@@ -38,27 +38,58 @@ add_library(driver_haptic_glove_driver SHARED
     src/driver_haptic_glove.cpp
 )
 
-# Output settings
+# Output settings - Force all configurations to same directory
 set_target_properties(driver_haptic_glove_driver PROPERTIES
     OUTPUT_NAME "driver_haptic_glove_driver"
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/haptic_glove_driver/bin/win64
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_BINARY_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/bin
 )
 
-# Copy resources
-file(COPY driver.vrdrivermanifest DESTINATION ${CMAKE_BINARY_DIR}/haptic_glove_driver/)
-file(COPY resources/ DESTINATION ${CMAKE_BINARY_DIR}/haptic_glove_driver/resources/)
+# Copy resources to build directory first
+file(COPY driver.vrdrivermanifest DESTINATION ${CMAKE_BINARY_DIR}/)
+file(COPY resources/ DESTINATION ${CMAKE_BINARY_DIR}/resources/)
 
-# Post-build: Copy to SteamVR and ensure openvr_api.dll is present
+# Post-build: Copy everything to SteamVR
 if(WIN32)
+    # Create the target directory structure
     add_custom_command(TARGET driver_haptic_glove_driver POST_BUILD
-        # Copy OpenVR DLL
+        COMMAND ${CMAKE_COMMAND} -E make_directory 
+            "$ENV{PROGRAMFILES\(X86\)}/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver/bin/win64"
+        COMMENT "Creating driver directory structure"
+    )
+    
+    # Copy the DLL from wherever CMake put it
+    add_custom_command(TARGET driver_haptic_glove_driver POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:driver_haptic_glove_driver>
+            "$ENV{PROGRAMFILES\(X86\)}/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver/bin/win64/driver_haptic_glove_driver.dll"
+        COMMENT "Copying driver DLL from $<TARGET_FILE:driver_haptic_glove_driver>"
+    )
+    
+    # Copy OpenVR DLL
+    add_custom_command(TARGET driver_haptic_glove_driver POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$ENV{PROGRAMFILES\(X86\)}/Steam/steamapps/common/SteamVR/bin/win64/openvr_api.dll"
-            ${CMAKE_BINARY_DIR}/haptic_glove_driver/bin/win64/
-        # Copy entire driver to SteamVR
+            "$ENV{PROGRAMFILES\(X86\)}/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver/bin/win64/"
+        COMMENT "Copying OpenVR API DLL"
+    )
+    
+    # Copy manifest
+    add_custom_command(TARGET driver_haptic_glove_driver POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_BINARY_DIR}/driver.vrdrivermanifest
+            "$ENV{PROGRAMFILES\(X86\)}/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver/"
+        COMMENT "Copying driver manifest"
+    )
+    
+    # Copy resources
+    add_custom_command(TARGET driver_haptic_glove_driver POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_BINARY_DIR}/haptic_glove_driver
-            "$ENV{PROGRAMFILES\(X86\)}/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver"
-        COMMENT "Installing haptic glove driver to SteamVR"
+            ${CMAKE_BINARY_DIR}/resources
+            "$ENV{PROGRAMFILES\(X86\)}/Steam/steamapps/common/SteamVR/drivers/haptic_glove_driver/resources"
+        COMMENT "Copying driver resources"
     )
 endif()
