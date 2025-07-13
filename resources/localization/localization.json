@@ -1,0 +1,11 @@
+{
+    "language": "english",
+    "controller_name": "Haptic Glove",
+    "controller_description": "Full hand tracking with force feedback",
+    "left_hand": "Left Hand",
+    "right_hand": "Right Hand",
+    "trigger": "Index Finger",
+    "grip": "Hand Grip", 
+    "skeletal_input": "Hand Skeleton",
+    "haptic_output": "Force Feedback"
+}

@@ -1,0 +1,336 @@
+{
+    // Input Profile for Skeletal Hand Tracking
+    // This file is the bridge between our driver and VR applications
+    // It defines HOW applications can access our skeletal hand data
+    
+    // Profile metadata - identifies this configuration to SteamVR
+    "jsonid": "input_profile",
+    "controller_type": "skeletal_hand_tracker",
+    
+    // UI configuration for SteamVR controller binding interface
+    "input_bindingui_mode": "controller_handed",
+    "input_bindingui_left": {
+        "image": "{haptic_glove_driver}/icons/hand_left.png"
+    },
+    "input_bindingui_right": {
+        "image": "{haptic_glove_driver}/icons/hand_right.png"
+    },
+    
+    // Input source definitions - these are the "API endpoints" that apps can query
+    // Each input source represents a different type of data our driver provides
+    "input_source": {
+        
+        // === SKELETAL INPUT SOURCES ===
+        // These are the core skeletal tracking inputs that make hand tracking work
+        
+        "/input/skeleton/left": {
+            "type": "skeleton",
+            "skeleton": "/skeleton/hand/left",
+            "order": 1,
+            "description": "Left hand skeletal tracking data with 31 bone transforms"
+        },
+        
+        "/input/skeleton/right": {
+            "type": "skeleton", 
+            "skeleton": "/skeleton/hand/right",
+            "order": 2,
+            "description": "Right hand skeletal tracking data with 31 bone transforms"
+        },
+        
+        // === POSE INPUT SOURCES ===
+        // These provide the overall hand position and orientation in 3D space
+        
+        "/input/pose/left": {
+            "type": "pose",
+            "order": 10,
+            "description": "Left hand 6DOF pose (position + rotation)"
+        },
+        
+        "/input/pose/right": {
+            "type": "pose",
+            "order": 11, 
+            "description": "Right hand 6DOF pose (position + rotation)"
+        },
+        
+        // === FINGER CURL INPUTS ===
+        // Individual finger curl values for applications that want direct access
+        // These complement the skeletal data for simpler integrations
+        
+        "/input/finger/thumb_curl": {
+            "type": "scalar",
+            "order": 20,
+            "description": "Thumb curl amount (0.0 = open, 1.0 = closed)"
+        },
+        
+        "/input/finger/index_curl": {
+            "type": "scalar",
+            "order": 21,
+            "description": "Index finger curl amount"
+        },
+        
+        "/input/finger/middle_curl": {
+            "type": "scalar",
+            "order": 22,
+            "description": "Middle finger curl amount"
+        },
+        
+        "/input/finger/ring_curl": {
+            "type": "scalar",
+            "order": 23,
+            "description": "Ring finger curl amount"
+        },
+        
+        "/input/finger/pinky_curl": {
+            "type": "scalar",
+            "order": 24,
+            "description": "Pinky finger curl amount"
+        },
+        
+        // === GESTURE RECOGNITION INPUTS ===
+        // High-level gesture states for applications that want simple interaction
+        
+        "/input/gesture/fist": {
+            "type": "boolean",
+            "order": 30,
+            "description": "True when hand is in fist gesture"
+        },
+        
+        "/input/gesture/open_palm": {
+            "type": "boolean",
+            "order": 31,
+            "description": "True when hand is open with fingers extended"
+        },
+        
+        "/input/gesture/pointing": {
+            "type": "boolean",
+            "order": 32,
+            "description": "True when pointing with index finger"
+        },
+        
+        "/input/gesture/thumbs_up": {
+            "type": "boolean",
+            "order": 33,
+            "description": "True when showing thumbs up gesture"
+        },
+        
+        "/input/gesture/peace_sign": {
+            "type": "boolean",
+            "order": 34,
+            "description": "True when showing peace sign (V shape)"
+        },
+        
+        "/input/gesture/pinch": {
+            "type": "boolean",
+            "order": 35,
+            "description": "True when thumb and index finger are pinching"
+        },
+        
+        // === COMPATIBILITY INPUTS ===
+        // These provide controller-like inputs for applications that expect traditional controllers
+        // This ensures our hand tracker works with games that aren't skeletal-aware
+        
+        "/input/trigger/click": {
+            "type": "boolean",
+            "order": 40,
+            "description": "Trigger click (mapped to index finger curl)"
+        },
+        
+        "/input/trigger/value": {
+            "type": "scalar",
+            "order": 41,
+            "description": "Trigger pull amount (index finger curl)"
+        },
+        
+        "/input/grip/click": {
+            "type": "boolean",
+            "order": 42,
+            "description": "Grip click (mapped to hand closing gesture)"
+        },
+        
+        "/input/grip/value": {
+            "type": "scalar",
+            "order": 43,
+            "description": "Grip squeeze amount (overall hand closure)"
+        },
+        
+        "/input/system/click": {
+            "type": "boolean",
+            "order": 44,
+            "description": "System button (mapped to specific gesture)"
+        },
+        
+        "/input/menu/click": {
+            "type": "boolean",
+            "order": 45,
+            "description": "Menu button (mapped to gesture combination)"
+        }
+    },
+    
+    // === OUTPUT DEFINITIONS ===
+    // These define how applications can send haptic feedback to our gloves
+    
+    "output": {
+        "/output/haptic/left": {
+            "type": "haptic",
+            "order": 50,
+            "description": "Left hand haptic feedback output"
+        },
+        
+        "/output/haptic/right": {
+            "type": "haptic", 
+            "order": 51,
+            "description": "Right hand haptic feedback output"
+        },
+        
+        // Advanced haptic outputs for individual finger force feedback
+        "/output/force/thumb": {
+            "type": "haptic",
+            "order": 60,
+            "description": "Thumb force feedback"
+        },
+        
+        "/output/force/index": {
+            "type": "haptic",
+            "order": 61,
+            "description": "Index finger force feedback"
+        },
+        
+        "/output/force/middle": {
+            "type": "haptic",
+            "order": 62,
+            "description": "Middle finger force feedback"
+        },
+        
+        "/output/force/ring": {
+            "type": "haptic",
+            "order": 63,
+            "description": "Ring finger force feedback"
+        },
+        
+        "/output/force/pinky": {
+            "type": "haptic",
+            "order": 64,
+            "description": "Pinky finger force feedback"
+        }
+    },
+    
+    // === DEFAULT BINDINGS ===
+    // These provide suggested mappings for common VR applications
+    // Applications can override these, but they serve as sensible defaults
+    
+    "default_bindings": {
+        
+        // Bindings for VRChat (popular social VR platform with good hand tracking support)
+        "vrchat": {
+            "skeletal_left": "/input/skeleton/left",
+            "skeletal_right": "/input/skeleton/right",
+            "haptic_left": "/output/haptic/left",
+            "haptic_right": "/output/haptic/right"
+        },
+        
+        // Bindings for Half-Life: Alyx (flagship VR game with hand tracking)
+        "hlalyx": {
+            "hand_left": "/input/skeleton/left",
+            "hand_right": "/input/skeleton/right", 
+            "trigger_left": "/input/trigger/value",
+            "trigger_right": "/input/trigger/value",
+            "grip_left": "/input/grip/value",
+            "grip_right": "/input/grip/value"
+        },
+        
+        // Generic controller bindings for compatibility
+        "controller_generic": {
+            "pose_left": "/input/pose/left",
+            "pose_right": "/input/pose/right",
+            "trigger_click": "/input/trigger/click",
+            "trigger_value": "/input/trigger/value",
+            "grip_click": "/input/grip/click", 
+            "grip_value": "/input/grip/value",
+            "system_click": "/input/system/click",
+            "menu_click": "/input/menu/click"
+        }
+    },
+    
+    // === INTERACTION PROFILES ===
+    // These define different modes of operation for various use cases
+    
+    "interaction_profiles": {
+        
+        // Full skeletal tracking mode - for applications that fully support hand tracking
+        "skeletal_tracking": {
+            "priority": 1,
+            "description": "Full hand skeletal tracking with 31-bone precision",
+            "required_inputs": [
+                "/input/skeleton/left",
+                "/input/skeleton/right"
+            ],
+            "optional_inputs": [
+                "/input/finger/thumb_curl",
+                "/input/finger/index_curl",
+                "/input/finger/middle_curl", 
+                "/input/finger/ring_curl",
+                "/input/finger/pinky_curl"
+            ]
+        },
+        
+        // Gesture recognition mode - for applications that want high-level gestures
+        "gesture_recognition": {
+            "priority": 2,
+            "description": "High-level gesture recognition without full skeletal data",
+            "required_inputs": [
+                "/input/pose/left",
+                "/input/pose/right"
+            ],
+            "optional_inputs": [
+                "/input/gesture/fist",
+                "/input/gesture/open_palm",
+                "/input/gesture/pointing",
+                "/input/gesture/thumbs_up",
+                "/input/gesture/peace_sign",
+                "/input/gesture/pinch"
+            ]
+        },
+        
+        // Controller emulation mode - for maximum compatibility with existing games
+        "controller_emulation": {
+            "priority": 3,
+            "description": "Traditional VR controller emulation using hand gestures",
+            "required_inputs": [
+                "/input/pose/left",
+                "/input/pose/right",
+                "/input/trigger/click",
+                "/input/trigger/value",
+                "/input/grip/click",
+                "/input/grip/value"
+            ]
+        }
+    },
+    
+    // === FEATURE CAPABILITIES ===
+    // Declares what our driver can do for SteamVR's capability detection
+    
+    "capabilities": {
+        "skeletal_input": {
+            "hand_left": true,
+            "hand_right": true,
+            "finger_tracking": true,
+            "bone_count": 31,
+            "update_rate_hz": 90
+        },
+        
+        "haptic_output": {
+            "vibration": true,
+            "force_feedback": true,
+            "per_finger_control": true,
+            "amplitude_control": true,
+            "frequency_control": false
+        },
+        
+        "tracking_quality": {
+            "position_accuracy_mm": 5.0,
+            "rotation_accuracy_degrees": 2.0,
+            "latency_ms": 11.0,
+            "jitter_mm": 1.0
+        }
+    }
+}

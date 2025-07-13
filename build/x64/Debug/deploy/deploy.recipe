@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>E:\Projects\haptic_glove_project\build\x64\Debug\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>E:\Projects\haptic_glove_project\build\haptic_glove_driver\bin\win64\driver_haptic_glove_driver.dll</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>E:\Projects\haptic_glove_project\build\x64\Debug\install_to_steamvr</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>E:\Projects\haptic_glove_project\build\x64\Debug\register_driver</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>E:\Projects\haptic_glove_project\build\x64\Debug\deploy</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>
