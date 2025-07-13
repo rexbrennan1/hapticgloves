@@ -1,6 +1,13 @@
 {
-    "alwaysActivate": true,
     "name": "haptic_glove_driver",
     "directory": "",
-    "resourceOnly": false
+    "resourceOnly": false,
+    "alwaysActivate": true,
+    "hmd_presence": ["*"],
+    "supported_os": [ "win" ],
+    "version": "1.0.0",
+    "description": "VR Haptic Glove Driver with Index Controller Emulation",
+    "author": "Rex Brennan",
+    "website": "https://github.com/rexbrennan1/hapticgloves",
+    "minimum_steamvr_version": "1.14.0"
 }
