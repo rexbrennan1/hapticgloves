@@ -50,20 +50,16 @@ void setup() {
 
 void loop() {
   unsigned long currentTime = millis();
-  
-  // Read sensors at full rate
+
   readSensors();
   
-  // Send data at controlled rate (50Hz)
   if(currentTime - lastDataSend >= DATA_INTERVAL) {
     sendData();
     lastDataSend = currentTime;
   }
   
-  // Handle commands immediately
   handleCommands();
   
-  // Small delay to prevent overwhelming the loop
   delay(5);
 }
 
