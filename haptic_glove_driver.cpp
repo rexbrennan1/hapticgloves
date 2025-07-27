@@ -154,21 +154,11 @@ public:
         );
         
         if (inputError != vr::VRInputError_None) {
-            // If skeletal component creation fails, we can't provide hand tracking
-            // This is a critical error that should be logged and handled gracefully
             vr::VRDriverLog()->Log("Failed to create skeletal component");
         }
     }
 
-    //========================================================================
-    // Real-Time Update Loop: Maintaining 90Hz Performance
-    //
-    // RunFrame is called at display refresh rate (typically 90Hz or 120Hz).
-    // This is where we update our skeletal pose data and maintain real-time
-    // performance. Every frame, we must provide fresh skeleton data to maintain
-    // smooth hand tracking without stuttering or lag.
-    //========================================================================
-    virtual void RunFrame() override {
+    virtual void RunFrame() {
         // Performance monitoring: Track how often we're actually updating
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(
