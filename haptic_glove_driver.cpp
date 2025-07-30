@@ -11,16 +11,7 @@
 #define DRIVER_EXPORT extern "C" __attribute__((visibility("default")))
 #endif
 
-//============================================================================
-// Understanding the Architecture: Two Main Classes
-//
-// OpenVR drivers use a two-level architecture:
-// 1. SkeletonDriverProvider: Manages the overall driver, creates devices
-// 2. SkeletonDevice: Represents individual hand controllers
-//
-// This separation allows one driver to manage multiple devices (left/right hands)
-// while keeping device-specific logic contained and manageable.
-//============================================================================
+//Skeletondevice is individual controllers
 
 class SkeletonDevice : public vr::ITrackedDeviceServerDriver {
 private:
@@ -34,10 +25,8 @@ private:
     vr::VRInputComponentHandle_t m_skeletalComponent;
     vr::VRInputComponentHandle_t m_poseComponent;
     
-    // Hand tracking simulation data
-    // In a real implementation, this would connect to your actual tracking system
-    float m_fingerCurl[5];        // Curl amount for each finger (0=straight, 1=fully curled)
-    float m_fingerSplay[4];       // Splay between fingers (0=together, 1=spread)
+    float m_fingerCurl[5];  
+    float m_fingerSplay[4];      
     bool m_isTracking;
     
     // Performance tracking for maintaining 90Hz updates
@@ -117,28 +106,14 @@ public:
         return vr::VRInitError_None;
     }
 
-    //========================================================================
-    // Skeletal Component Creation: The Heart of Hand Tracking
-    //
-    // This method creates the skeletal input component that will provide
-    // 31-bone hand skeleton data to applications. The parameters here are
-    // crucial for proper operation and determine how SteamVR interprets our data.
-    //========================================================================
     void CreateSkeletalComponent() {
-        // First, we need to create the reference poses that define our hand model
-        // These poses establish the coordinate system and constraints for our skeleton
-        
-        // Bind pose: The reference position for mesh skinning
-        // This represents hands pointing forward with palms facing inward
+
         vr::VRBoneTransform_t bindPose[31];
         ComputeBindPose(bindPose);
         
-        // Grip limit pose: Maximum closure when holding a controller
-        // This defines how fingers can move when constrained by physical hardware
         vr::VRBoneTransform_t gripLimitPose[31];
         ComputeGripLimitPose(gripLimitPose);
         
-        // Create the skeletal component with our hand-specific configuration
         std::string skeletonPath = (m_role == vr::TrackedControllerRole_LeftHand) ? 
             "/input/skeleton/left" : "/input/skeleton/right";
         
@@ -154,8 +129,6 @@ public:
         );
         
         if (inputError != vr::VRInputError_None) {
-            // If skeletal component creation fails, we can't provide hand tracking
-            // This is a critical error that should be logged and handled gracefully
             vr::VRDriverLog()->Log("Failed to create skeletal component");
         }
     }
@@ -169,17 +142,14 @@ public:
     // smooth hand tracking without stuttering or lag.
     //========================================================================
     virtual void RunFrame() override {
-        // Performance monitoring: Track how often we're actually updating
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(
             currentTime - m_lastUpdateTime).count();
         m_lastUpdateTime = currentTime;
         
         if (m_deviceIndex != vr::k_unTrackedDeviceIndexInvalid) {
-            // Update device pose: Overall position and orientation in space
             UpdateDevicePose();
             
-            // Update skeletal data: Individual finger and bone positions
             UpdateSkeletalPose();
             
             // In a real implementation, you might also:
@@ -198,8 +168,7 @@ public:
     // the skeletal data to place the hand model correctly in the virtual world.
     //========================================================================
     void UpdateDevicePose() {
-        // Create a pose representing the controller's position and orientation
-        // In a real implementation, this would come from your tracking system
+
         vr::DriverPose_t pose = { 0 };
         
         // Basic pose setup - device is present and tracking
@@ -330,8 +299,6 @@ public:
         ComputeFingerTransforms(transforms, 12, 5, 2, withController);  // Ring finger (bone 12-16)
         ComputeFingerTransforms(transforms, 17, 5, 3, withController);  // Pinky finger (bone 17-21)
         
-        // Auxiliary bones (22-30) can be left at identity for basic implementation
-        // These are used for inverse kinematics and advanced hand modeling
     }
 
     //========================================================================
