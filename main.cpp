@@ -12,7 +12,6 @@
 #endif
 
 //Skeletondevice is individual controllers
-
 class SkeletonDevice : public vr::ITrackedDeviceServerDriver {
 private:
     // Core device identification and state
@@ -42,11 +41,9 @@ public:
         m_isTracking(true) {
         
         // Create unique serial numbers for left and right hands
-        // This is crucial because SteamVR uses serial numbers to identify devices
         m_serialNumber = (role == vr::TrackedControllerRole_LeftHand) ? 
             "SkeletonController_Left_001" : "SkeletonController_Right_001";
         
-        // Initialize hand pose to a natural resting position
         // This represents a relaxed hand pose that serves as our starting point
         for (int i = 0; i < 5; i++) {
             m_fingerCurl[i] = 0.1f;  // Slightly curved, not perfectly straight
@@ -58,19 +55,12 @@ public:
         m_lastUpdateTime = std::chrono::high_resolution_clock::now();
     }
 
-    //========================================================================
     // Device Lifecycle: Activation Phase
-    //
-    // The Activate method is called when SteamVR decides to start using our device.
-    // This is where we set up all device properties and create input components.
-    // Think of this as the device "coming online" and telling SteamVR what it can do.
-    //========================================================================
     virtual vr::EVRInitError Activate(vr::TrackedDeviceIndex_t deviceIndex) override {
         m_deviceIndex = deviceIndex;
         m_propertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(deviceIndex);
         
         // Device Properties: These tell SteamVR and applications what kind of device this is
-        // Each property serves a specific purpose in the VR ecosystem
         
         // Basic identification - these appear in SteamVR's device list
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_SerialNumber_String, m_serialNumber.c_str());
@@ -82,7 +72,6 @@ public:
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "skeleton_hand");
         
         // Input profile tells SteamVR how to present binding options to users
-        // This JSON file defines what inputs are available and how they're organized
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, 
             "{skeleton}/input/skeleton_hand_profile.json");
         
@@ -91,15 +80,11 @@ public:
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsWireless_Bool, true);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsCharging_Bool, false);
         vr::VRProperties()->SetFloatProperty(m_propertyContainer, vr::Prop_DeviceBatteryPercentage_Float, 1.0f);
-        
-        // Create Input Components: These are the actual data channels applications can read
-        
-        // Skeletal component: This is where the magic happens
-        // We're telling SteamVR we can provide full hand skeleton data
+
+        CreateInputComponents();
         CreateSkeletalComponent();
         
         // Pose component: Basic position and orientation tracking
-        // Even skeleton controllers need to report their overall position in space
         vr::VRDriverInput()->CreateBooleanComponent(m_propertyContainer, "/input/system/click", &m_poseComponent);
         vr::VRDriverInput()->CreateHapticComponent(m_propertyContainer, "/output/haptic", &m_poseComponent);
         
@@ -133,14 +118,7 @@ public:
         }
     }
 
-    //========================================================================
-    // Real-Time Update Loop: Maintaining 90Hz Performance
-    //
-    // RunFrame is called at display refresh rate (typically 90Hz or 120Hz).
-    // This is where we update our skeletal pose data and maintain real-time
-    // performance. Every frame, we must provide fresh skeleton data to maintain
-    // smooth hand tracking without stuttering or lag.
-    //========================================================================
+    // Real-Time Update Loop
     virtual void RunFrame() override {
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto deltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -160,13 +138,7 @@ public:
         }
     }
 
-    //========================================================================
     // Device Pose Updates: Position in Virtual Space
-    //
-    // Even though we're primarily a hand tracker, we still need to report
-    // where the controller is in 3D space. This pose gets combined with
-    // the skeletal data to place the hand model correctly in the virtual world.
-    //========================================================================
     void UpdateDevicePose() {
 
         vr::DriverPose_t pose = { 0 };
@@ -209,13 +181,7 @@ public:
         vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_deviceIndex, pose, sizeof(pose));
     }
 
-    //========================================================================
     // Skeletal Pose Updates: The Core of Hand Tracking
-    //
-    // This method computes and updates the 31-bone hand skeleton that applications
-    // use for realistic hand animation. We provide both constrained and unconstrained
-    // motion ranges to handle different application needs.
-    //========================================================================
     void UpdateSkeletalPose() {
         // Simulate hand movement for demonstration
         // In a real driver, this data would come from your tracking system
@@ -245,13 +211,8 @@ public:
         );
     }
 
-    //========================================================================
+
     // Hand Movement Simulation: Demonstration Data
-    //
-    // This creates realistic-looking hand poses for testing purposes.
-    // In your actual implementation, replace this with data from your
-    // tracking system (cameras, sensors, machine learning, etc.).
-    //========================================================================
     void SimulateHandMovement() {
         static float time = 0.0f;
         time += 0.016f;  // Assume ~60fps update rate
@@ -273,13 +234,8 @@ public:
         }
     }
 
-    //========================================================================
+
     // Bone Transform Computation: The Mathematical Core
-    //
-    // This is where we convert our tracking data into the 31-bone skeleton
-    // that SteamVR expects. Each bone needs position and orientation relative
-    // to its parent in the bone hierarchy.
-    //========================================================================
     void ComputeBoneTransforms(vr::VRBoneTransform_t* transforms, bool withController) {
         // Initialize all transforms to identity (no transformation)
         for (int i = 0; i < 31; i++) {
@@ -301,13 +257,7 @@ public:
         
     }
 
-    //========================================================================
     // Thumb Computation: Special Case Due to Different Anatomy
-    //
-    // The thumb has a different joint structure and range of motion compared
-    // to the other fingers. It also moves in a different plane, requiring
-    // special mathematical treatment.
-    //========================================================================
     void ComputeThumbTransforms(vr::VRBoneTransform_t* transforms, bool withController) {
         // Thumb bone indices: 2, 3, 4, 5 (4 bones total)
         const float thumbLength[] = { 0.04f, 0.03f, 0.025f, 0.02f }; // Bone lengths in meters
@@ -343,13 +293,7 @@ public:
         }
     }
 
-    //========================================================================
     // Finger Transform Computation: Standard Four-Finger Algorithm
-    //
-    // Computes bone transforms for index, middle, ring, and pinky fingers.
-    // Each finger has 5 bones with similar joint structures but different
-    // proportions and movement ranges.
-    //========================================================================
     void ComputeFingerTransforms(vr::VRBoneTransform_t* transforms, int startBone, 
                                 int numBones, int fingerIndex, bool withController) {
         // Standard finger bone lengths (approximate ratios)
@@ -395,48 +339,24 @@ public:
         }
     }
 
-    //========================================================================
     // Reference Pose Computation: Bind Pose and Grip Limits
-    //
-    // These poses define the reference states that SteamVR uses for
-    // mesh skinning and motion constraints. Getting these right is
-    // crucial for natural-looking hand animation.
-    //========================================================================
     void ComputeBindPose(vr::VRBoneTransform_t* bindPose) {
         // Bind pose: Natural hand position pointing forward, palm inward
-        // This is the reference pose used for mesh skinning in applications
-        
         for (int i = 0; i < 31; i++) {
             bindPose[i].position = { 0.0f, 0.0f, 0.0f, 1.0f };
             bindPose[i].orientation = { 0.0f, 0.0f, 0.0f, 1.0f };
-        }
-        
-        // Set up natural finger positions for bind pose
-        // Fingers slightly spread, slightly curved - natural resting position
-        // (Detailed bind pose computation would go here)
-        // For brevity, we're using identity transforms, but real implementation
-        // would set proper bone positions and orientations
+        }   
     }
     
     void ComputeGripLimitPose(vr::VRBoneTransform_t* gripPose) {
         // Grip limit pose: Maximum finger closure when holding a controller
-        // This defines physical constraints imposed by controller hardware
-        
         for (int i = 0; i < 31; i++) {
             gripPose[i].position = { 0.0f, 0.0f, 0.0f, 1.0f };
             gripPose[i].orientation = { 0.0f, 0.0f, 0.0f, 1.0f };
         }
-        
-        // Configure maximum curl positions when gripping controller
-        // (Detailed grip limit computation would go here)
     }
 
-    //========================================================================
     // Device Lifecycle: Deactivation and Cleanup
-    //
-    // When SteamVR no longer needs our device, we must clean up properly
-    // to prevent resource leaks and ensure stable operation.
-    //========================================================================
     virtual void Deactivate() override {
         m_deviceIndex = vr::k_unTrackedDeviceIndexInvalid;
         m_propertyContainer = vr::k_ulInvalidPropertyContainer;
@@ -453,39 +373,24 @@ public:
     std::string GetSerialNumber() const { return m_serialNumber; }
 };
 
-//============================================================================
 // Driver Provider: The Main Driver Class
-//
-// This class manages the overall driver lifecycle and creates individual
-// skeleton devices. SteamVR calls this class first, and it's responsible
-// for creating and managing all the devices the driver provides.
-//============================================================================
 class SkeletonDriverProvider : public vr::IServerTrackedDeviceProvider {
 private:
     std::unique_ptr<SkeletonDevice> m_leftHand;
     std::unique_ptr<SkeletonDevice> m_rightHand;
 
 public:
-    //========================================================================
     // Driver Initialization: Setting Up the VR Environment
-    //
-    // This is called when SteamVR loads our driver. We must initialize
-    // our connection to SteamVR and create our devices here.
-    //========================================================================
     virtual vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext) override {
         // Initialize the driver context - this MUST be the first call
-        // This macro sets up our connection to SteamVR's services
         VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
         
-        // Log that our driver is initializing
         vr::VRDriverLog()->Log("Skeleton Controller Driver: Initializing");
         
         // Create our hand tracking devices
-        // Most systems track both hands, so we create left and right controllers
         m_leftHand = std::make_unique<SkeletonDevice>(vr::TrackedControllerRole_LeftHand);
         m_rightHand = std::make_unique<SkeletonDevice>(vr::TrackedControllerRole_RightHand);
         
-        // Register devices with SteamVR
         // This tells SteamVR that these devices exist and can be activated
         vr::VRServerDriverHost()->TrackedDeviceAdded(
             m_leftHand->GetSerialNumber().c_str(),
@@ -503,15 +408,8 @@ public:
         return vr::VRInitError_None;
     }
 
-    //========================================================================
     // Frame Updates: Maintaining Real-Time Performance
-    //
-    // Called every frame by SteamVR. We forward this to our devices
-    // so they can update their tracking data and maintain 90Hz performance.
-    //========================================================================
     virtual void RunFrame() override {
-        // Update both hands every frame
-        // The order doesn't matter, but consistency helps with debugging
         if (m_leftHand) {
             m_leftHand->RunFrame();
         }
@@ -520,17 +418,11 @@ public:
         }
     }
 
-    //========================================================================
     // Driver Shutdown: Clean Resource Management
-    //
-    // Called when SteamVR is shutting down or unloading our driver.
-    // Proper cleanup prevents memory leaks and ensures stable operation.
-    //========================================================================
     virtual void Cleanup() override {
         vr::VRDriverLog()->Log("Skeleton Controller Driver: Shutting down");
         
         // Clean up our devices
-        // The unique_ptr will automatically delete the devices
         m_leftHand.reset();
         m_rightHand.reset();
         
@@ -545,18 +437,10 @@ public:
     virtual void LeaveStandby() override {}
 };
 
-//============================================================================
 // Driver Factory Function: The Entry Point
-//
-// This is the function that SteamVR calls to get our driver provider.
-// It must be exported from the DLL and follow the exact naming convention.
-// This is how SteamVR discovers and loads our driver.
-//============================================================================
 DRIVER_EXPORT void* HmdDriverFactory(const char* pInterfaceName, int* pReturnCode) {
-    // Check if SteamVR is asking for the interface we provide
-    if (0 == strcmp(vr::IServerTrackedDeviceProvider_Version, pInterfaceName)) {
-        // Create and return our driver provider
-        // We use a static instance to ensure it persists for the driver's lifetime
+    // Check if SteamVR is asking for our driver provider interface then create an instance of our driver provider
+    if (0 == strcmp(vr::IServerTrackedDeviceProvider_Version, pInterfaceName)) { 
         static SkeletonDriverProvider provider;
         
         if (pReturnCode) {

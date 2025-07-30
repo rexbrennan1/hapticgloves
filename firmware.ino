@@ -23,27 +23,13 @@ const unsigned long DATA_INTERVAL = 20; //50hz
 void setup() {
   Serial.begin(19200);
   
-  if (!bno.begin()) Serial.println("Bno fail");
+  if (!bno.begin()) Serial.println("Bno failed");
 
   bno.setMode(OPERATION_MODE_IMUPLUS);
   
   for(int i = 0; i < 5; i++) {
     servos[i].attach(SERVO_PINS[i]);
     servos[i].write(90);
-    delay(10);
-  }
-  
-  // Brief startup sequence
-  for(int pos = 90; pos <= 120; pos += 10) {
-    for(int i = 0; i < 5; i++) {
-      servos[i].write(pos);
-    }
-    delay(10);
-  }
-  for(int pos = 120; pos >= 90; pos -= 10) {
-    for(int i = 0; i < 5; i++) {
-      servos[i].write(pos);
-    }
     delay(10);
   }
 }
@@ -132,13 +118,6 @@ void handleCommands() {
     } else {
       Serial.println("HAPTIC_ERROR");
     }
-  }
-  else if(cmd == "RESET") {
-    Serial.println("Resetting servos...");
-    for(int i = 0; i < 5; i++) {
-      servos[i].write(90);
-    }
-    Serial.println("RESET_OK");
   }
   else if(cmd.startsWith("TEST")) {
     Serial.println("Test mode - cycling servos");
