@@ -183,14 +183,12 @@ public:
 
     // Skeletal Pose Updates: The Core of Hand Tracking
     void UpdateSkeletalPose() {
-        // Simulate hand movement for demonstration
         // In a real driver, this data would come from your tracking system
         SimulateHandMovement();
         
         // Create arrays to hold our bone transforms
         vr::VRBoneTransform_t boneTransforms[31];
         
-        // Update constrained pose (WithController motion range)
         // This represents how the hand moves when holding a physical controller
         ComputeBoneTransforms(boneTransforms, true);
         vr::VRDriverInput()->UpdateSkeletonComponent(
@@ -200,7 +198,6 @@ public:
             31
         );
         
-        // Update unconstrained pose (WithoutController motion range)
         // This represents natural hand movement without physical constraints
         ComputeBoneTransforms(boneTransforms, false);
         vr::VRDriverInput()->UpdateSkeletonComponent(
@@ -449,11 +446,9 @@ DRIVER_EXPORT void* HmdDriverFactory(const char* pInterfaceName, int* pReturnCod
         
         return &provider;
     }
-    
     // SteamVR asked for an interface we don't provide
     if (pReturnCode) {
         *pReturnCode = vr::VRInitError_Init_InterfaceNotFound;
     }
-    
     return nullptr;
 }
