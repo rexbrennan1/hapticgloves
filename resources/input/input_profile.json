@@ -1,0 +1,26 @@
+{
+    "json_id" : "input_profile",
+    "controller_type": "skeletal_hand",
+    "description": "Haptic Gloves Skeletal Hand Tracking",
+    "name": "hapticgloves",
+    "input_source": {
+        "/input/skeleton/left": {
+            "type": "skeleton",
+            "skeleton": "/skeleton/hand/left"
+        },
+        "/input/skeleton/right": {
+            "type": "skeleton", 
+            "skeleton": "/skeleton/hand/right"
+        },
+        "/input/system": {
+            "type": "button",
+            "binding_image_point": [0, 0],
+            "order": 1
+        }
+    },
+    "output_source": {
+        "/output/haptic": {
+            "type": "haptic"
+        }
+    }
+}
