@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="E:\Code\hapticgloves\hapticgloves\build\CMakeFiles\eabf1488310b3b8fb709f54ae7879fc5\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{F40C384C-8A7E-3D98-B600-AF783E757D59}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

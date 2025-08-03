@@ -1,10 +1,9 @@
 {
-	"alwaysActivate": true,
-	"name" : "sample",
-	"directory" : "",
-	"resourceOnly" : false,
-	"hmd_presence" :
-	[
-		"*.*"
-	]
+    "alwaysActivate": true,
+    "name": "hapticgloves",
+    "directory": "",
+    "resourceOnly": false,
+    "hmd_presence": [
+        "*.*"
+    ]
 }

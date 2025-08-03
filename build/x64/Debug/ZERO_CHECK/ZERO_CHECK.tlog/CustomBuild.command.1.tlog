@@ -1,0 +1,10 @@
+^E:\CODE\HAPTICGLOVES\HAPTICGLOVES\BUILD\CMAKEFILES\EABF1488310B3B8FB709F54AE7879FC5\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SE:/Code/hapticgloves/hapticgloves -BE:/Code/hapticgloves/hapticgloves/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file E:/Code/hapticgloves/hapticgloves/build/driver_hapticgloves.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
