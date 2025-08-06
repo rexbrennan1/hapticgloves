@@ -1,6 +1,6 @@
 {
     "json_id" : "input_profile",
-    "controller_type": "skeletal_hand",
+    "controller_type": "hapticglove",
     "description": "Haptic Gloves Skeletal Hand Tracking",
     "name": "hapticgloves",
     "input_source": {
