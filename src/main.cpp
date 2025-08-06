@@ -105,7 +105,8 @@ public:
         m_lastUpdateTime = currentTime;
         
         if (m_deviceIndex != vr::k_unTrackedDeviceIndexInvalid) {
-            UpdateDevicePose();
+            vr::DriverPose_t pose = GetPose();
+            vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_deviceIndex, pose, sizeof(pose));
             
             UpdateSkeletalPose();
             
@@ -115,36 +116,6 @@ public:
         }
     }
 
-    // Device Pose Updates: Position in Virtual Space
-    void UpdateDevicePose() {
-
-        vr::DriverPose_t pose = { 0 };
-        
-        pose.poseIsValid = true;
-        pose.result = vr::TrackingResult_Running_OK;
-        pose.deviceIsConnected = true;
-        
-        pose.vecPosition[0] = 0.3;       // 30cm to the right
-        pose.vecPosition[1] = 1.0;       // 1 meter up (chest level)
-        pose.vecPosition[2] = -0.5;      // 50cm forward
-        
-        pose.qRotation.w = 1.0;
-        pose.qRotation.x = 0.0;
-        pose.qRotation.y = 0.0;
-        pose.qRotation.z = 0.0;
-        
-        for (int i = 0; i < 3; i++) {
-            pose.vecVelocity[i] = 0.0;
-            pose.vecAngularVelocity[i] = 0.0;
-            pose.vecAcceleration[i] = 0.0;
-           pose.vecAngularAcceleration[i] = 0.0;
-        }
-    
-        pose.poseTimeOffset = 0.0;
-        
-        vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_deviceIndex, pose, sizeof(pose));
-    }
-
     // Skeletal Pose Updates: The Core of Hand Tracking
     void UpdateSkeletalPose() {
         SimulateHandMovement();
@@ -152,10 +123,9 @@ public:
         vr::VRBoneTransform_t boneTransforms[15];
         ComputeBoneTransforms(boneTransforms);
         
-        // Single skeleton update (no controller constraints)
         vr::VRDriverInput()->UpdateSkeletonComponent(
             m_skeletalComponent,
-            vr::VRSkeletalMotionRange_WithoutController,  // Always use natural movement
+            vr::VRSkeletalMotionRange_WithoutController,
             boneTransforms,
             15
         );
