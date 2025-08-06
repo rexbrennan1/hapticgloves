@@ -7,18 +7,18 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x29);
 Servo servos[5];
 const int FINGER_PINS[5] = {A0, A1, A2, A3, A6}; 
-const int SERVO_PINS[5] = {3, 5, 6, 9, 10};  
+const int SERVO_PINS[5] = {3, 4, 5, 6, 7};  
 
 struct GloveData {
   float qw, qx, qy, qz;    
   float ax, ay, az;          
-  int fingers[5];              
-  unsigned long timestamp;       
+  int fingers[5];                   
 };
 
 GloveData data;
 unsigned long lastDataSend = 0;
 const unsigned long DATA_INTERVAL = 20; //50hz
+unsigned long currentTime = 0;
 
 void setup() {
   Serial.begin(19200);
@@ -35,14 +35,11 @@ void setup() {
 }
 
 void loop() {
-  unsigned long currentTime = millis();
+  currentTime = millis();
 
   readSensors();
   
-  if(currentTime - lastDataSend >= DATA_INTERVAL) {
-    sendData();
-    lastDataSend = currentTime;
-  }
+  if(currentTime - lastDataSend >= DATA_INTERVAL) { sendData(); lastDataSend = currentTime; }
   
   handleCommands();
   
@@ -62,11 +59,7 @@ void readSensors() {
   data.ay = event.acceleration.y; 
   data.az = event.acceleration.z;
 
-  for(int i = 0; i < 5; i++) {
-    data.fingers[i] = constrain(analogRead(FINGER_PINS[i]), 0, 1023);
-  }
-
-  data.timestamp = millis();
+  for(int i = 0; i < 5; i++) { data.fingers[i] = constrain(analogRead(FINGER_PINS[i]), 0, 1023); }
 }
 
 void sendData() {
@@ -87,50 +80,29 @@ void sendData() {
 void handleCommands() {
   if(!Serial.available()) return;
   
-  String cmd = Serial.readStringUntil('\n');
-  cmd.trim();
+  String cmd = Serial.readStringUntil('\n').trim();
   
   if(cmd.startsWith("HAPTIC:")) {
-    // Style: HAPTIC:90,120,90,90,90
     cmd = cmd.substring(7);
     
-    int pos[5];
     int idx = 0;
     int start = 0;
     
-    // Parse comma-separated values
     for(int i = 0; i <= cmd.length() && idx < 5; i++) {
       if(i == cmd.length() || cmd[i] == ',') {
-        String valueStr = cmd.substring(start, i);
-        pos[idx] = valueStr.toInt();
-        pos[idx] = constrain(pos[idx], 0, 180);
+        servos[idx].write(constrain(cmd.substring(start, i).toInt(pos[idx]), 0, 180));
         start = i + 1;
         idx++;
       }
     }
-    
-    // Apply servo positions if we got all 5 values
-    if(idx == 5) {
-      for(int i = 0; i < 5; i++) {
-        servos[i].write(pos[i]);
-      }
-      Serial.println("HAPTIC_OK");
-    } else {
-      Serial.println("HAPTIC_ERROR");
-    }
   }
   else if(cmd.startsWith("TEST")) {
-    Serial.println("Test mode - cycling servos");
       for(int pos = 90; pos <= 150; pos += 20) {
-        for(int i = 0; i < 5; i++) {
-          servos[i].write(pos);
-        }
+        for(int i = 0; i < 5; i++) { servos[i].write(pos); }
         delay(200);
       }
       for(int pos = 150; pos >= 90; pos -= 20) {
-        for(int i = 0; i < 5; i++) {
-          servos[i].write(pos);
-        }
+        for(int i = 0; i < 5; i++) { servos[i].write(pos); }
         delay(200);
       }
     Serial.println("TEST_COMPLETE");

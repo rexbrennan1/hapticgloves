@@ -41,10 +41,7 @@ public:
         
         m_serialNumber = "HapticGloveRight";
         
-        // This represents a relaxed hand pose that serves as our starting point
-        for (int i = 0; i < 5; i++) {
-            m_fingerCurl[i] = 0.1f;  // Slightly curved, not perfectly straight
-        }
+        for (int i = 0; i < 5; i++) { m_fingerCurl[i] = 0.1f; } // Relaxed start pose, Slightly curved
         
         m_lastUpdateTime = std::chrono::high_resolution_clock::now();
     }
@@ -97,9 +94,7 @@ public:
             &m_skeletalComponent             // Handle for future updates
         );
         
-        if (inputError != vr::VRInputError_None) {
-            vr::VRDriverLog()->Log("Failed to create skeletal component");
-        }
+        if (inputError != vr::VRInputError_None) { vr::VRDriverLog()->Log("Failed to create skeletal component"); }
     }
 
     // Real-Time Update Loop
@@ -125,7 +120,6 @@ public:
 
         vr::DriverPose_t pose = { 0 };
         
-        // Basic pose setup - device is present and tracking
         pose.poseIsValid = true;
         pose.result = vr::TrackingResult_Running_OK;
         pose.deviceIsConnected = true;
@@ -134,21 +128,19 @@ public:
         pose.vecPosition[1] = 1.0;       // 1 meter up (chest level)
         pose.vecPosition[2] = -0.5;      // 50cm forward
         
-        // Orientation: Which way the controller is pointing
         pose.qRotation.w = 1.0;
         pose.qRotation.x = 0.0;
         pose.qRotation.y = 0.0;
         pose.qRotation.z = 0.0;
         
-        // Velocity and acceleration (for prediction algorithms)
         for (int i = 0; i < 3; i++) {
             pose.vecVelocity[i] = 0.0;
             pose.vecAngularVelocity[i] = 0.0;
             pose.vecAcceleration[i] = 0.0;
-            pose.vecAngularAcceleration[i] = 0.0;
+           pose.vecAngularAcceleration[i] = 0.0;
         }
-        
-        pose.poseTimeOffset = 0.0;  // Timing info: No prediction offset for this example
+    
+        pose.poseTimeOffset = 0.0;
         
         vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_deviceIndex, pose, sizeof(pose));
     }
@@ -222,9 +214,7 @@ public:
             
             // Simple rotation around Z axis for thumb
             float halfAngle = jointCurl * 0.5f;
-            transforms[boneIndex].orientation = {
-                0.0f, 0.0f, sin(halfAngle), cos(halfAngle)
-            };
+            transforms[boneIndex].orientation = { 0.0f, 0.0f, sin(halfAngle), cos(halfAngle) };
         }
     }
 
@@ -251,9 +241,7 @@ public:
             
             // Simple rotation around X axis for finger curl
             float halfAngle = jointCurl * 0.5f;
-            transforms[boneIndex].orientation = {
-                sin(halfAngle), 0.0f, 0.0f, cos(halfAngle)
-            };
+            transforms[boneIndex].orientation = { sin(halfAngle), 0.0f, 0.0f, cos(halfAngle) };
         }
     }
 
@@ -269,9 +257,7 @@ public:
         
         // Simple curl rotation
         float halfAngle = curl * 0.25f;
-        transforms[14].orientation = {
-            sin(halfAngle), 0.0f, 0.0f, cos(halfAngle)
-        };
+        transforms[14].orientation = { sin(halfAngle), 0.0f, 0.0f, cos(halfAngle) };
     }
 
     // Reference Pose Computation: Bind Pose and Grip Limits
@@ -386,15 +372,12 @@ DRIVER_EXPORT void* HmdDriverFactory(const char* pInterfaceName, int* pReturnCod
     if (0 == strcmp(vr::IServerTrackedDeviceProvider_Version, pInterfaceName)) { 
         static SkeletonDriverProvider provider;
         
-        if (pReturnCode) {
-            *pReturnCode = vr::VRInitError_None;
-        }
+        if (pReturnCode) { *pReturnCode = vr::VRInitError_None; }
         
         return &provider;
     }
     // SteamVR asked for an interface we don't provide
-    if (pReturnCode) {
-        *pReturnCode = vr::VRInitError_Init_InterfaceNotFound;
-    }
+    if (pReturnCode) { *pReturnCode = vr::VRInitError_Init_InterfaceNotFound; }
+
     return nullptr;
 }
