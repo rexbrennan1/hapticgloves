@@ -57,7 +57,7 @@ public:
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ManufacturerName_String, "Rex Brennan");
         vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_ControllerRoleHint_Int32, m_role);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hapticglove");
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, "resources/input/input_profile.json");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, "{hapticgloves}/resources/input/input_profile.json");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_WillDriftInYaw_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsWireless_Bool, true);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsCharging_Bool, false);
@@ -311,7 +311,7 @@ public:
         // This tells SteamVR that these devices exist and can be activated 
         vr::VRServerDriverHost()->TrackedDeviceAdded(
             hapticglove->GetSerialNumber().c_str(),
-            vr::TrackedDeviceClass_GenericTracker,
+            vr::TrackedDeviceClass_Controller,
             hapticglove.get()
         );
         

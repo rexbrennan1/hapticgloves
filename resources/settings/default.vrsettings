@@ -1,7 +1,0 @@
-{
-   "driver_skeleton" : {
-      "enable" : true,
-      "debug_logging" : true,
-      "update_rate_hz" : 90
-   }
-}
