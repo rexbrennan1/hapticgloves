@@ -1,5 +1,5 @@
 {
-    "json_id" : "input_profile",
+    "json_id": "input_profile",
     "controller_type": "hand_tracking",
     "description": "Haptic Gloves Skeletal Hand Tracking",
     "name": "hapticgloves",
@@ -7,6 +7,12 @@
         "/input/skeleton/right": {
             "type": "skeleton", 
             "skeleton": "/skeleton/hand/right"
+        },
+        "/input/pose/raw": {
+            "type": "pose"
+        },
+        "/input/pose/tip": {
+            "type": "pose"
         },
         "/input/system": {
             "type": "button",

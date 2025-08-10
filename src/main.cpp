@@ -56,7 +56,7 @@ public:
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ModelNumber_String, "Haptic Gloves v1.0");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ManufacturerName_String, "Rex Brennan");
         vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_ControllerRoleHint_Int32, m_role);
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, "{hapticgloves}/resources/input/input_profile.json");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, "{hapticgloves}/input/input_profile.json");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_WillDriftInYaw_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsWireless_Bool, true);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsCharging_Bool, false);
@@ -66,9 +66,15 @@ public:
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_TrackingSystemName_String, "hapticgloves");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{hapticgloves}/icons/controller_status_off.png");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{hapticgloves}/icons/controller_status_searching.gif");
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{hapticgloves}/icons/controller_status_ready.png");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_ContainsProximitySensor_Bool, false);
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RenderModelName_String, "");
+        vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_Controller);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hand_tracking");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hand_tracking");
+        vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_ControllerHandSelectionPriority_Int32, 100);
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{hapticgloves}/icons/hand_ready.png");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RegisteredDeviceType_String, "hapticgloves/haptic_hand_right");
+        vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_NeverTracked_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasDisplayComponent_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasCameraComponent_Bool, false);
 
@@ -78,29 +84,29 @@ public:
         
         return vr::VRInitError_None;
     }
-
     void CreateSkeletalComponent() {
-
-        vr::VRBoneTransform_t bindPose[15];
+        vr::VRBoneTransform_t bindPose[31];  
         ComputeBindPose(bindPose);
         
-        vr::VRBoneTransform_t gripLimitPose[15];
+        vr::VRBoneTransform_t gripLimitPose[31];  
         ComputeGripLimitPose(gripLimitPose);
         
-        std::string skeletonPath = "/input/skeleton/tracking/right";
+        std::string skeletonPath = "/input/skeleton/right";
         
         vr::EVRInputError inputError = vr::VRDriverInput()->CreateSkeletonComponent(
-            m_propertyContainer,             // Property container for this device
-            skeletonPath.c_str(),            // Input path (how applications reference this)
-            "/skeleton/hand/right",          // Skeleton path 
-            "/pose/raw",                     // Base pose path
-            vr::VRSkeletalTracking_Partial,  // We provide full finger tracking
-            bindPose,                        // Reference pose for the skeleton
-            15,                              // Number of bones (fixed for hands)
-            &m_skeletalComponent             // Handle for future updates
+            m_propertyContainer,
+            skeletonPath.c_str(),
+            "/skeleton/hand/right",             
+            "/pose/raw",
+            vr::VRSkeletalTracking_Full,       
+            bindPose,
+            31,                               
+            &m_skeletalComponent
         );
         
-        if (inputError != vr::VRInputError_None) { vr::VRDriverLog()->Log("Failed to create skeletal component"); }
+        if (inputError != vr::VRInputError_None) {
+            vr::VRDriverLog()->Log("Failed to create skeletal component");
+        }
     }
 
     // Real-Time Update Loop
@@ -126,14 +132,14 @@ public:
     void UpdateSkeletalPose() {
         SimulateHandMovement();
         
-        vr::VRBoneTransform_t boneTransforms[15];
+        vr::VRBoneTransform_t boneTransforms[31];
         ComputeBoneTransforms(boneTransforms);
         
         vr::VRDriverInput()->UpdateSkeletonComponent(
             m_skeletalComponent,
             vr::VRSkeletalMotionRange_WithoutController,
             boneTransforms,
-            15
+            31
         );
     }
 
@@ -155,31 +161,45 @@ public:
 
     // Bone Transform Computation: The Mathematical Core
     void ComputeBoneTransforms(vr::VRBoneTransform_t* transforms) {
-        // Initialize all transforms to identity
-        for (int i = 0; i < 15; i++) {
+        // Initialize all 31 transforms to identity
+        for (int i = 0; i < 31; i++) { 
             transforms[i].position = { 0.0f, 0.0f, 0.0f, 1.0f };
             transforms[i].orientation = { 0.0f, 0.0f, 0.0f, 1.0f };
         }
         
-        // Root and wrist (always at origin)
+        // Full 31-bone structure:
+        // 0: Root
+        // 1: Wrist
+        // 2-5: Thumb (4 bones)
+        // 6-10: Index finger (5 bones) 
+        // 11-15: Middle finger (5 bones)
+        // 16-20: Ring finger (5 bones)
+        // 21-25: Pinky finger (5 bones)
+        // 26-30: Aux bones (5 bones)
+        
         transforms[0] = { {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f} }; // Root
         transforms[1] = { {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f} }; // Wrist
         
-        // Simplified finger calculations
-        ComputeSimpleThumb(transforms);        // Bones 2-4
-        ComputeSimpleFinger(transforms, 5, 0); // Index: Bones 5-7
-        ComputeSimpleFinger(transforms, 8, 1); // Middle: Bones 8-10  
-        ComputeSimpleFinger(transforms, 11, 2); // Ring: Bones 11-13
-        ComputeSimplePinky(transforms);        // Bone 14
+        // Compute each finger with full bone count
+        ComputeFullThumb(transforms);              // Bones 2-5 (4 bones)
+        ComputeFullFinger(transforms, 6, 0);       // Index: Bones 6-10 (5 bones)
+        ComputeFullFinger(transforms, 11, 1);      // Middle: Bones 11-15 (5 bones)
+        ComputeFullFinger(transforms, 16, 2);      // Ring: Bones 16-20 (5 bones)
+        ComputeFullFinger(transforms, 21, 3);      // Pinky: Bones 21-25 (5 bones)
+        
+        // Aux bones (usually not used, set to identity)
+        for (int i = 26; i < 31; i++) {
+            transforms[i] = { {0.0f, 0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f} };
+        }
     }
 
-    void ComputeSimpleThumb(vr::VRBoneTransform_t* transforms) {
-        const float thumbLengths[] = { 0.04f, 0.03f, 0.025f };
+    void ComputeFullThumb(vr::VRBoneTransform_t* transforms) {
+        const float thumbLengths[] = { 0.04f, 0.03f, 0.025f, 0.02f }; // 4 bone segments
         float curl = m_fingerCurl[0]; // Thumb curl (0-1)
         
-        for (int i = 0; i < 3; i++) {
-            int boneIndex = 2 + i;
-            float jointCurl = curl * (i + 1) * 0.4f; // Progressive curl
+        for (int i = 0; i < 4; i++) {  // ← 4 bones for full thumb
+            int boneIndex = 2 + i;     // Thumb bones: 2, 3, 4, 5
+            float jointCurl = curl * (i + 1) * 0.3f; // Progressive curl
             
             transforms[boneIndex].position = {
                 thumbLengths[i] * cos(jointCurl - 0.5f), // Thumb angle offset
@@ -190,12 +210,14 @@ public:
             
             // Simple rotation around Z axis for thumb
             float halfAngle = jointCurl * 0.5f;
-            transforms[boneIndex].orientation = { 0.0f, 0.0f, sin(halfAngle), cos(halfAngle) };
+            transforms[boneIndex].orientation = {
+                0.0f, 0.0f, sin(halfAngle), cos(halfAngle)
+            };
         }
     }
 
-    void ComputeSimpleFinger(vr::VRBoneTransform_t* transforms, int startBone, int fingerIndex) {
-        const float boneLengths[] = { 0.05f, 0.04f, 0.035f }; // 3 bone segments
+    void ComputeFullFinger(vr::VRBoneTransform_t* transforms, int startBone, int fingerIndex) {
+        const float boneLengths[] = { 0.05f, 0.04f, 0.035f, 0.03f, 0.025f }; // 5 bone segments
         const float fingerScales[] = { 1.0f, 1.1f, 1.05f, 0.9f }; // Index, middle, ring, pinky
         const float fingerPositions[] = { -0.03f, 0.0f, 0.03f, 0.06f }; // X positions across palm
         
@@ -203,9 +225,9 @@ public:
         float scale = fingerScales[fingerIndex];
         float baseX = fingerPositions[fingerIndex];
         
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 5; i++) {  // ← 5 bones for full fingers
             int boneIndex = startBone + i;
-            float jointCurl = curl * (i + 1) * 0.5f; // Progressive curl
+            float jointCurl = curl * (i + 1) * 0.4f; // Progressive curl
             float length = boneLengths[i] * scale;
             
             transforms[boneIndex].position = {
@@ -217,7 +239,9 @@ public:
             
             // Simple rotation around X axis for finger curl
             float halfAngle = jointCurl * 0.5f;
-            transforms[boneIndex].orientation = { sin(halfAngle), 0.0f, 0.0f, cos(halfAngle) };
+            transforms[boneIndex].orientation = {
+                sin(halfAngle), 0.0f, 0.0f, cos(halfAngle)
+            };
         }
     }
 
@@ -238,7 +262,7 @@ public:
 
     // Reference Pose Computation: Bind Pose and Grip Limits
     void ComputeBindPose(vr::VRBoneTransform_t* bindPose) {
-        for (int i = 0; i < 15; i++) {  
+        for (int i = 0; i < 31; i++) {  
             bindPose[i].position = { 0.0f, 0.0f, 0.0f, 1.0f };
             bindPose[i].orientation = { 0.0f, 0.0f, 0.0f, 1.0f };
         }
@@ -246,7 +270,7 @@ public:
     
     void ComputeGripLimitPose(vr::VRBoneTransform_t* gripPose) {
         // Grip limit pose: Maximum finger closure when holding a controller
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 31; i++) {
             gripPose[i].position = { 0.0f, 0.0f, 0.0f, 1.0f };
             gripPose[i].orientation = { 0.0f, 0.0f, 0.0f, 1.0f };
         }
