@@ -56,7 +56,6 @@ public:
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ModelNumber_String, "Haptic Gloves v1.0");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ManufacturerName_String, "Rex Brennan");
         vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_ControllerRoleHint_Int32, m_role);
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hapticglove");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, "{hapticgloves}/resources/input/input_profile.json");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_WillDriftInYaw_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsWireless_Bool, true);
@@ -65,6 +64,13 @@ public:
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceProvidesBatteryStatus_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceCanPowerOff_Bool, false);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_TrackingSystemName_String, "hapticgloves");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{hapticgloves}/icons/controller_status_off.png");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{hapticgloves}/icons/controller_status_searching.gif");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{hapticgloves}/icons/controller_status_ready.png");
+        vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_ContainsProximitySensor_Bool, false);
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hand_tracking");
+        vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasDisplayComponent_Bool, false);
+        vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasCameraComponent_Bool, false);
 
         CreateSkeletalComponent();
         
@@ -81,7 +87,7 @@ public:
         vr::VRBoneTransform_t gripLimitPose[15];
         ComputeGripLimitPose(gripLimitPose);
         
-        std::string skeletonPath = "/input/skeleton/right";
+        std::string skeletonPath = "/input/skeleton/tracking/right";
         
         vr::EVRInputError inputError = vr::VRDriverInput()->CreateSkeletonComponent(
             m_propertyContainer,             // Property container for this device

@@ -1,13 +1,9 @@
 {
     "json_id" : "input_profile",
-    "controller_type": "hapticglove",
+    "controller_type": "hand_tracking",
     "description": "Haptic Gloves Skeletal Hand Tracking",
     "name": "hapticgloves",
     "input_source": {
-        "/input/skeleton/left": {
-            "type": "skeleton",
-            "skeleton": "/skeleton/hand/left"
-        },
         "/input/skeleton/right": {
             "type": "skeleton", 
             "skeleton": "/skeleton/hand/right"
