@@ -92,7 +92,7 @@ events:
       The output was:
       0
       MSBuild version 17.14.14+a129329f1 for .NET Framework
-      Build started 10/08/2025 8:37:58 PM.
+      Build started 16/08/2025 11:32:09 AM.
       
       Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\4.1.0-rc1\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -121,7 +121,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:01.34
+      Time Elapsed 00:00:01.02
       
       
       Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -777,7 +777,7 @@ events:
       The output was:
       0
       MSBuild version 17.14.14+a129329f1 for .NET Framework
-      Build started 10/08/2025 8:38:00 PM.
+      Build started 16/08/2025 11:32:11 AM.
       
       Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\4.1.0-rc1\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -806,7 +806,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:01.02
+      Time Elapsed 00:00:01.03
       
       
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -1139,8 +1139,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-g023do"
-      binary: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-g023do"
+      source: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-0wmbps"
+      binary: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-0wmbps"
     cmakeVariables:
       CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
       CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
@@ -1149,40 +1149,40 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-g023do'
+        Change Dir: 'E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-0wmbps'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_fa10f.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_389b2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.14.14+a129329f1 for .NET Framework
-        Build started 10/08/2025 8:38:02 PM.
+        Build started 16/08/2025 11:32:12 AM.
         
-        Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-g023do\\cmTC_fa10f.vcxproj" on node 1 (default targets).
+        Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0wmbps\\cmTC_389b2.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_fa10f.dir\\Debug\\".
+          Creating directory "cmTC_389b2.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-g023do\\Debug\\".
-          Creating directory "cmTC_fa10f.dir\\Debug\\cmTC_fa10f.tlog\\".
+          Creating directory "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0wmbps\\Debug\\".
+          Creating directory "cmTC_389b2.dir\\Debug\\cmTC_389b2.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_fa10f.dir\\Debug\\cmTC_fa10f.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_fa10f.dir\\Debug\\cmTC_fa10f.tlog\\unsuccessfulbuild".
+          Creating "cmTC_389b2.dir\\Debug\\cmTC_389b2.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_389b2.dir\\Debug\\cmTC_389b2.tlog\\unsuccessfulbuild".
         ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_fa10f.dir\\Debug\\\\" /Fd"cmTC_fa10f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_389b2.dir\\Debug\\\\" /Fd"cmTC_389b2.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_fa10f.dir\\Debug\\\\" /Fd"cmTC_fa10f.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Fo"cmTC_389b2.dir\\Debug\\\\" /Fd"cmTC_389b2.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCCompilerABI.c"
           CMakeCCompilerABI.c
         Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-g023do\\Debug\\cmTC_fa10f.exe" /INCREMENTAL /ILK:"cmTC_fa10f.dir\\Debug\\cmTC_fa10f.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-g023do/Debug/cmTC_fa10f.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-g023do/Debug/cmTC_fa10f.lib" /MACHINE:X64  /machine:x64 cmTC_fa10f.dir\\Debug\\CMakeCCompilerABI.obj
-          cmTC_fa10f.vcxproj -> E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-g023do\\Debug\\cmTC_fa10f.exe
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0wmbps\\Debug\\cmTC_389b2.exe" /INCREMENTAL /ILK:"cmTC_389b2.dir\\Debug\\cmTC_389b2.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-0wmbps/Debug/cmTC_389b2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-0wmbps/Debug/cmTC_389b2.lib" /MACHINE:X64  /machine:x64 cmTC_389b2.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_389b2.vcxproj -> E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0wmbps\\Debug\\cmTC_389b2.exe
         FinalizeBuildStatus:
-          Deleting file "cmTC_fa10f.dir\\Debug\\cmTC_fa10f.tlog\\unsuccessfulbuild".
-          Touching "cmTC_fa10f.dir\\Debug\\cmTC_fa10f.tlog\\cmTC_fa10f.lastbuildstate".
-        Done Building Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-g023do\\cmTC_fa10f.vcxproj" (default targets).
+          Deleting file "cmTC_389b2.dir\\Debug\\cmTC_389b2.tlog\\unsuccessfulbuild".
+          Touching "cmTC_389b2.dir\\Debug\\cmTC_389b2.tlog\\cmTC_389b2.lastbuildstate".
+        Done Building Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0wmbps\\cmTC_389b2.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:00.97
+        Time Elapsed 00:00:01.08
         
       exitCode: 0
   -
@@ -1222,8 +1222,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-2x2uab"
-      binary: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-2x2uab"
+      source: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-87aeec"
+      binary: "E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-87aeec"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
@@ -1233,40 +1233,40 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-2x2uab'
+        Change Dir: 'E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-87aeec'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_8acdc.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_27aa9.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.14.14+a129329f1 for .NET Framework
-        Build started 10/08/2025 8:38:03 PM.
+        Build started 16/08/2025 11:32:14 AM.
         
-        Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2x2uab\\cmTC_8acdc.vcxproj" on node 1 (default targets).
+        Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-87aeec\\cmTC_27aa9.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_8acdc.dir\\Debug\\".
+          Creating directory "cmTC_27aa9.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2x2uab\\Debug\\".
-          Creating directory "cmTC_8acdc.dir\\Debug\\cmTC_8acdc.tlog\\".
+          Creating directory "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-87aeec\\Debug\\".
+          Creating directory "cmTC_27aa9.dir\\Debug\\cmTC_27aa9.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_8acdc.dir\\Debug\\cmTC_8acdc.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_8acdc.dir\\Debug\\cmTC_8acdc.tlog\\unsuccessfulbuild".
+          Creating "cmTC_27aa9.dir\\Debug\\cmTC_27aa9.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_27aa9.dir\\Debug\\cmTC_27aa9.tlog\\unsuccessfulbuild".
         ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_8acdc.dir\\Debug\\\\" /Fd"cmTC_8acdc.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_27aa9.dir\\Debug\\\\" /Fd"cmTC_27aa9.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.44.35211 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_8acdc.dir\\Debug\\\\" /Fd"cmTC_8acdc.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /GR /Fo"cmTC_27aa9.dir\\Debug\\\\" /Fd"cmTC_27aa9.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.1\\Modules\\CMakeCXXCompilerABI.cpp"
           CMakeCXXCompilerABI.cpp
         Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2x2uab\\Debug\\cmTC_8acdc.exe" /INCREMENTAL /ILK:"cmTC_8acdc.dir\\Debug\\cmTC_8acdc.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-2x2uab/Debug/cmTC_8acdc.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-2x2uab/Debug/cmTC_8acdc.lib" /MACHINE:X64  /machine:x64 cmTC_8acdc.dir\\Debug\\CMakeCXXCompilerABI.obj
-          cmTC_8acdc.vcxproj -> E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2x2uab\\Debug\\cmTC_8acdc.exe
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\link.exe /OUT:"E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-87aeec\\Debug\\cmTC_27aa9.exe" /INCREMENTAL /ILK:"cmTC_27aa9.dir\\Debug\\cmTC_27aa9.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-87aeec/Debug/cmTC_27aa9.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /IMPLIB:"E:/Code/hapticgloves/hapticgloves/build/CMakeFiles/CMakeScratch/TryCompile-87aeec/Debug/cmTC_27aa9.lib" /MACHINE:X64  /machine:x64 cmTC_27aa9.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_27aa9.vcxproj -> E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-87aeec\\Debug\\cmTC_27aa9.exe
         FinalizeBuildStatus:
-          Deleting file "cmTC_8acdc.dir\\Debug\\cmTC_8acdc.tlog\\unsuccessfulbuild".
-          Touching "cmTC_8acdc.dir\\Debug\\cmTC_8acdc.tlog\\cmTC_8acdc.lastbuildstate".
-        Done Building Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-2x2uab\\cmTC_8acdc.vcxproj" (default targets).
+          Deleting file "cmTC_27aa9.dir\\Debug\\cmTC_27aa9.tlog\\unsuccessfulbuild".
+          Touching "cmTC_27aa9.dir\\Debug\\cmTC_27aa9.tlog\\cmTC_27aa9.lastbuildstate".
+        Done Building Project "E:\\Code\\hapticgloves\\hapticgloves\\build\\CMakeFiles\\CMakeScratch\\TryCompile-87aeec\\cmTC_27aa9.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:01.00
+        Time Elapsed 00:00:01.03
         
       exitCode: 0
   -

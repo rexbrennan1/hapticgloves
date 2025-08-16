@@ -1,8 +1,9 @@
 {
     "json_id": "input_profile",
-    "controller_type": "hand_tracking",
+    "controller_type": "knuckles",
     "description": "Haptic Gloves Skeletal Hand Tracking",
     "name": "hapticgloves",
+    "render_model": "vr_controller_vive_knu_ev3",
     "input_source": {
         "/input/skeleton/right": {
             "type": "skeleton", 

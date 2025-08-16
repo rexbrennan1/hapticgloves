@@ -50,13 +50,21 @@ public:
     virtual vr::EVRInitError Activate(vr::TrackedDeviceIndex_t deviceIndex) override {
         m_deviceIndex = deviceIndex;
         m_propertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(deviceIndex);
-         
+        
         // Basic identification
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_SerialNumber_String, m_serialNumber.c_str());
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ModelNumber_String, "Haptic Gloves v1.0");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ManufacturerName_String, "Rex Brennan");
+
+        // Make SteamVR think it's an Index controller (Knuckles)
         vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_ControllerRoleHint_Int32, m_role);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, "{hapticgloves}/input/input_profile.json");
+
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "knuckles");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RegisteredDeviceType_String, "valve/index_controller");
+        vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_Controller);
+
+        // Tracking & hardware status
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_WillDriftInYaw_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsWireless_Bool, true);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsCharging_Bool, false);
@@ -64,26 +72,23 @@ public:
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceProvidesBatteryStatus_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceCanPowerOff_Bool, false);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_TrackingSystemName_String, "hapticgloves");
+
+        // Icons & visuals
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{hapticgloves}/icons/controller_status_off.png");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{hapticgloves}/icons/controller_status_searching.gif");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_ContainsProximitySensor_Bool, false);
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RenderModelName_String, "");
-        vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_Controller);
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hand_tracking");
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hand_tracking");
-        vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_ControllerHandSelectionPriority_Int32, 100);
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RenderModelName_String, "vr_controller_vive_knu_ev3");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{hapticgloves}/icons/hand_ready.png");
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RegisteredDeviceType_String, "hapticgloves/haptic_hand_right");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_NeverTracked_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasDisplayComponent_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasCameraComponent_Bool, false);
 
         CreateSkeletalComponent();
-        
         vr::VRDriverInput()->CreateHapticComponent(m_propertyContainer, "/output/haptic", &m_poseComponent);
         
         return vr::VRInitError_None;
     }
+
     void CreateSkeletalComponent() {
         vr::VRBoneTransform_t bindPose[31];  
         ComputeBindPose(bindPose);
