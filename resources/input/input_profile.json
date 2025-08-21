@@ -1,29 +1,28 @@
 {
-    "json_id": "input_profile",
-    "controller_type": "knuckles",
-    "description": "Haptic Gloves Skeletal Hand Tracking",
-    "name": "hapticgloves",
-    "render_model": "vr_controller_vive_knu_ev3",
-    "input_source": {
-        "/input/skeleton/right": {
-            "type": "skeleton", 
-            "skeleton": "/skeleton/hand/right"
-        },
-        "/input/pose/raw": {
-            "type": "pose"
-        },
-        "/input/pose/tip": {
-            "type": "pose"
-        },
-        "/input/system": {
-            "type": "button",
-            "binding_image_point": [0, 0],
-            "order": 1
-        }
+  "jsonid": "input_profile",
+  "controller_type": "hapticgloves",
+  "input_bindingui_mode": "controller_handed",
+  "input_bindingui_right": {
+    "image": "{hapticgloves}/input/glove_right.svg"
+  },
+  "input_source": {
+    "/pose/raw": {
+      "type": "pose",
+      "binding_image_point": [16, 16],
+      "order": 1
     },
-    "output_source": {
-        "/output/haptic": {
-            "type": "haptic"
-        }
+    "/input/skeleton/right": {
+      "type": "skeleton",
+      "skeleton": "/skeleton/hand/right",
+      "side": "right",
+      "binding_image_point": [16, 32],
+      "order": 2
+    },
+    "/output/haptic": {
+      "type": "vibration",
+      "binding_image_point": [16, 48],
+      "order": 3
     }
+  },
+  "default_bindings": []
 }
