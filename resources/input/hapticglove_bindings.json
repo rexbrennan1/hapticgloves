@@ -1,0 +1,29 @@
+{
+  "bindings": {
+    "/actions/default": {
+      "sources": [
+        {
+          "path": "/input/skeleton/right",
+          "mode": "skeleton",
+          "inputs": {
+            "skeleton": "/actions/default/in/skeletonright"
+          }
+        },
+        {
+          "path": "/pose/raw",
+          "mode": "pose",
+          "inputs": {
+            "pose": "/actions/default/in/pose"
+          }
+        },
+        {
+          "path": "/output/haptic",
+          "mode": "vibration",
+          "outputs": {
+            "haptic": "/actions/default/out/haptic"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -41,12 +41,12 @@ public:
     SkeletonDevice(vr::ETrackedControllerRole role)
         : m_deviceIndex(vr::k_unTrackedDeviceIndexInvalid)
         , m_propertyContainer(vr::k_ulInvalidPropertyContainer)
-        , m_serialNumber("HapticGloveRight")
+        , m_serialNumber("hapticgloves")
         , m_role(role)
         , m_skeletalComponent(vr::k_ulInvalidInputComponentHandle)
         , m_poseComponent(vr::k_ulInvalidInputComponentHandle)
         , m_isTracking(true) {
-        for (int i = 0; i < 5; ++i) m_fingerCurl[i] = 0.1f; // relaxed start
+        for (int i = 0; i < 5; ++i) m_fingerCurl[i] = 0.1f;
         m_lastUpdateTime = std::chrono::high_resolution_clock::now();
     }
 
@@ -55,19 +55,14 @@ public:
         m_deviceIndex = deviceIndex;
         m_propertyContainer = vr::VRProperties()->TrackedDeviceToPropertyContainer(deviceIndex);
 
-        // Identity
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_SerialNumber_String, m_serialNumber.c_str());
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ModelNumber_String, "Haptic Gloves v1.0");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ManufacturerName_String, "Rex Brennan");
-
-        // Pretend to be Index controller so apps show hands
         vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_ControllerRoleHint_Int32, m_role);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_InputProfilePath_String, "{hapticgloves}/input/input_profile.json");
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hapticglove");
+        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_ControllerType_String, "hapticgloves");
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RegisteredDeviceType_String, "hapticgloves");
         vr::VRProperties()->SetInt32Property(m_propertyContainer, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_Controller);
-
-        // Status
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_WillDriftInYaw_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsWireless_Bool, true);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceIsCharging_Bool, false);
@@ -75,19 +70,15 @@ public:
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceProvidesBatteryStatus_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_DeviceCanPowerOff_Bool, false);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_TrackingSystemName_String, "hapticgloves");
-
-        // Icons/visuals
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{hapticgloves}/icons/controller_status_off.png");
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{hapticgloves}/icons/controller_status_searching.gif");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_ContainsProximitySensor_Bool, false);
         vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_RenderModelName_String, "vr_controller_vive_knu_ev3");
-        vr::VRProperties()->SetStringProperty(m_propertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{hapticgloves}/icons/hand_ready.png");
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_NeverTracked_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasDisplayComponent_Bool, false);
         vr::VRProperties()->SetBoolProperty(m_propertyContainer, vr::Prop_HasCameraComponent_Bool, false);
 
         CreateSkeletalComponent();
         vr::VRDriverInput()->CreateHapticComponent(m_propertyContainer, "/output/haptic", &m_poseComponent);
+ 
         return vr::VRInitError_None;
     }
 
@@ -98,24 +89,21 @@ public:
         ComputeBindPose(bindPose);
         ComputeGripLimitPose(gripLimitPose);
 
-        const std::string skeletonPath = "/input/skeleton/right"; // right hand only
-
         vr::EVRInputError err = vr::VRDriverInput()->CreateSkeletonComponent(
             m_propertyContainer,
-            skeletonPath.c_str(),
-            "/skeleton/hand/right",         // SteamVR hand skeleton
-            "/pose/raw",                    // follows our raw device pose
+            "/input/skeleton/right",
+            "/skeleton/hand/right",         
+            "/pose/raw",                    
             vr::VRSkeletalTracking_Full,
-            gripLimitPose,                    // IMPORTANT: grip limits, not bind pose
-            31,                               // bone count
+            bindPose,                   
+            31,                               
             &m_skeletalComponent);
 
         if (err != vr::VRInputError_None) {
-            vr::VRDriverLog()->Log("[HapticGlove] CreateSkeletonComponent failed");
+            vr::VRDriverLog()->Log("[hapticgloves] CreateSkeletonComponent failed");
         }
     }
 
-    // --- Per-frame update ---
     virtual void RunFrame() {
         auto now = std::chrono::high_resolution_clock::now();
         auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastUpdateTime).count();
@@ -203,12 +191,73 @@ public:
     }
 
     // Reference poses (keep identity to let SteamVR provide bone lengths/placements)
-    void ComputeBindPose(vr::VRBoneTransform_t* bindPose) {
-        for (int i = 0; i < 31; ++i) {
-            bindPose[i].position = {0.0f, 0.0f, 0.0f, 1.0f};
-            bindPose[i].orientation = {0.0f, 0.0f, 0.0f, 1.0f};
-        }
-    }
+   void ComputeBindPose(vr::VRBoneTransform_t* bindPose) {
+    // Bind pose from Valve's HandSkeletonSimulation sample, right hand
+    const vr::VRBoneTransform_t k_rightBindPose[31] = {
+        // 0: Root
+        { { 0, 0, 0, 1 }, { 0, 0, 0, 1 } },
+        // 1: Wrist
+        { { 0.0f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 2: Thumb0
+        { { 0.0219999f, -0.0209999f, 0.001f, 1.0f }, { 0.0f, 0.0f, -0.382683f, 0.92388f } },
+        // 3: Thumb1
+        { { 0.034f, -0.02f, -0.003f, 1.0f }, { -0.130526f, 0.0f, 0.0f, 0.991445f } },
+        // 4: Thumb2
+        { { 0.028f, 0.0f, 0.0f, 1.0f }, { -0.087156f, 0.0f, 0.0f, 0.996195f } },
+        // 5: Thumb3
+        { { 0.025f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 6: Index0
+        { { 0.05f, 0.01f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0871557f, 0.996195f } },
+        // 7: Index1
+        { { 0.03f, 0.0f, 0.0f, 1.0f }, { -0.130526f, 0.0f, 0.0f, 0.991445f } },
+        // 8: Index2
+        { { 0.025f, 0.0f, 0.0f, 1.0f }, { -0.087156f, 0.0f, 0.0f, 0.996195f } },
+        // 9: Index3
+        { { 0.02f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 10: IndexTip
+        { { 0.018f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 11: Middle0
+        { { 0.05f, -0.005f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.043619f, 0.999048f } },
+        // 12: Middle1
+        { { 0.033f, 0.0f, 0.0f, 1.0f }, { -0.130526f, 0.0f, 0.0f, 0.991445f } },
+        // 13: Middle2
+        { { 0.028f, 0.0f, 0.0f, 1.0f }, { -0.087156f, 0.0f, 0.0f, 0.996195f } },
+        // 14: Middle3
+        { { 0.023f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 15: MiddleTip
+        { { 0.019f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 16: Ring0
+        { { 0.045f, -0.018f, 0.0f, 1.0f }, { 0.0f, 0.0f, -0.043619f, 0.999048f } },
+        // 17: Ring1
+        { { 0.03f, 0.0f, 0.0f, 1.0f }, { -0.130526f, 0.0f, 0.0f, 0.991445f } },
+        // 18: Ring2
+        { { 0.025f, 0.0f, 0.0f, 1.0f }, { -0.087156f, 0.0f, 0.0f, 0.996195f } },
+        // 19: Ring3
+        { { 0.02f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 20: RingTip
+        { { 0.018f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 21: Pinky0
+        { { 0.04f, -0.03f, 0.0f, 1.0f }, { 0.0f, 0.0f, -0.0871557f, 0.996195f } },
+        // 22: Pinky1
+        { { 0.025f, 0.0f, 0.0f, 1.0f }, { -0.130526f, 0.0f, 0.0f, 0.991445f } },
+        // 23: Pinky2
+        { { 0.02f, 0.0f, 0.0f, 1.0f }, { -0.087156f, 0.0f, 0.0f, 0.996195f } },
+        // 24: Pinky3
+        { { 0.017f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 25: PinkyTip
+        { { 0.015f, 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f, 1.0f } },
+        // 26–30: Aux bones (fill with identity)
+        { { 0,0,0,1 }, {0,0,0,1} },
+        { { 0,0,0,1 }, {0,0,0,1} },
+        { { 0,0,0,1 }, {0,0,0,1} },
+        { { 0,0,0,1 }, {0,0,0,1} },
+        { { 0,0,0,1 }, {0,0,0,1} }
+    };
+
+    for (int i = 0; i < 31; ++i)
+        bindPose[i] = k_rightBindPose[i];
+}
+
 
     void ComputeGripLimitPose(vr::VRBoneTransform_t* gripPose) {
         for (int i = 0; i < 31; ++i) {
@@ -225,7 +274,7 @@ public:
         pose.deviceIsConnected = true;
 
         pose.vecPosition[0] = 0.0; // 30cm right
-        pose.vecPosition[1] = 1.6; // 1m up
+        pose.vecPosition[1] = 1.0; // 1m up
         pose.vecPosition[2] = -0.5; // 50cm forward
 
         pose.qRotation = {1.0, 0.0, 0.0, 0.0};
@@ -259,29 +308,29 @@ public:
 // --- Provider ---
 class SkeletonDriverProvider : public vr::IServerTrackedDeviceProvider {
 private:
-    std::unique_ptr<SkeletonDevice> hapticglove;
+    std::unique_ptr<SkeletonDevice> hapticgloves;
 
 public:
     virtual vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext) override {
         VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
         vr::VRDriverLog()->Log("Skeleton Controller Driver: Initializing");
 
-        hapticglove = std::make_unique<SkeletonDevice>(vr::TrackedControllerRole_RightHand);
+        hapticgloves = std::make_unique<SkeletonDevice>(vr::TrackedControllerRole_RightHand);
 
         vr::VRServerDriverHost()->TrackedDeviceAdded(
-            hapticglove->GetSerialNumber().c_str(),
+            hapticgloves->GetSerialNumber().c_str(),
             vr::TrackedDeviceClass_Controller,
-            hapticglove.get());
+            hapticgloves.get());
 
         vr::VRDriverLog()->Log("Skeleton Controller Driver: Initialization complete");
         return vr::VRInitError_None;
     }
 
-    virtual void RunFrame() override { if (hapticglove) hapticglove->RunFrame(); }
+    virtual void RunFrame() override { if (hapticgloves) hapticgloves->RunFrame(); }
 
     virtual void Cleanup() override {
         vr::VRDriverLog()->Log("Skeleton Controller Driver: Shutting down");
-        hapticglove.reset();
+        hapticgloves.reset();
         VR_CLEANUP_SERVER_DRIVER_CONTEXT();
     }
 
